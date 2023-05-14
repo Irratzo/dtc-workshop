@@ -1,0 +1,337 @@
+# # In Emacs org-mode: before exporting, comment this out START
+# ;; Local Variables:
+# ;; ispell-check-comments: exclusive
+# ;; ispell-local-dictionary: "english"
+# ;; End:
+# # In Emacs org-mode: before exporting, comment this out FINISH
+
+# Org-mode Export LaTeX Customization Notes:
+# - Interpret 'bla_bla' as LaTeX Math bla subscript bla: #+OPTIONS ^:t. Interpret literally bla_bla: ^:nil.
+# - org export: turn off heading -> section numbering: #+OPTIONS: num:nil
+# - org export: change list numbering to alphabetical, sources:
+#   - https://orgmode.org/manual/Plain-lists-in-LaTeX-export.html
+#   - https://tex.stackexchange.com/a/129960
+#   - must be inserted before each list:
+#     #+ATTR_LATEX: :environment enumerate
+#     #+ATTR_LATEX: :options [label=\alph*)]
+# - allow org to recognize alphabetical lists a)...: M-x customize-variable org-list-allow-alphabetical
+
+
+# -----------------------
+# General Export Options:
+#+OPTIONS: ^:nil ':nil *:t -:t ::t <:t H:3 \n:nil arch:headline
+#+OPTIONS: broken-links:nil c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+OPTIONS: f:t inline:t p:nil pri:nil prop:nil stat:t tags:t
+#+OPTIONS: tasks:t tex:t timestamp:t title:t todo:t |:t
+
+#+OPTIONS: author:Johannes Wasmer
+#+OPTIONS: email:johannes.wasmer@gmail.com
+# #+AUTHOR: Johannes Wasmer
+# #+EMAIL: johannes.wasmer@gmail.com
+
+# for org for web (eg gitlab, github): num:nil, toc:nil. using custom Table of Contents below.
+# for tex/pdf export, temporarily: num:t, toc:t. replace * Table of Contents -> * COMMENT Table of Contents.
+#+OPTIONS: num:nil
+# t or nil: disable export latex section numbering for org headings
+#+OPTIONS: toc:nil
+# t or nil: no table of contents (doesn't work if num:nil)
+
+#+TITLE: dtc-workshop-notes-wasmer
+#+SUBTITLE:
+#+DATE: <2023-05-14 Sun>
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
+#+CREATOR: Emacs 28.2 (Org mode 9.6.5)
+
+# ---------------------
+# LaTeX Export Options:
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS:
+#+LATEX_HEADER: \usepackage[english]{babel}
+#+LATEX_HEADER: \usepackage[top=0.5in,bottom=0.5in,left=1in,right=1in,includeheadfoot]{geometry} % wider page; load BEFORE fancyhdr
+#+LATEX_HEADER: \usepackage[inline]{enumitem} % for customization of itemize, enumerate envs
+#+LATEX_HEADER: \usepackage{color}
+#+LATEX_HEADER: \usepackage{bm}
+#+LATEX_HEADER: \usepackage{mathtools}
+#+LATEX_HEADER: % override 'too deeply nested error'
+#+LATEX_HEADER: % (may occur in deeply nested org files)
+#+LATEX_HEADER: % reference: https://stackoverflow.com/a/13120787
+#+LATEX_HEADER: \usepackage{enumitem}
+#+LATEX_HEADER: \setlistdepth{9}
+#+LATEX_HEADER: \setlist[itemize,1]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,2]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,3]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,4]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,5]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,6]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,7]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,8]{label=$\bullet$}
+#+LATEX_HEADER: \setlist[itemize,9]{label=$\bullet$}
+#+LATEX_HEADER: \renewlist{itemize}{itemize}{9}
+#+LATEX_HEADER:
+#+LATEX_HEADER_EXTRA:
+#+LATEX_COMPILER: pdflatex
+
+# auto-id: get export-safe org-mode headline IDs
+# References:
+# - web: https://writequit.org/articles/emacs-org-mode-generate-ids.html
+# - local:
+#   - Emacs Config Notes > get export-safe org-mode headline IDs
+#   - emacs dotfile > =JW 220419 org-mode headlines CUSTOM_ID=
+#+OPTIONS: auto-id:t
+
+# --------------------
+# Agenda Config.
+# Notes:
+# - tags:
+#   - :TOC: automatic table of contents generation via https://github.com/snosov1/toc-org.
+#     (Note: this is for org/markdown etc. For latex/html export, prefer #+OPTIONS: toc:t.)
+#+TODO: DOING(1) NEXT(2) TODO(3) WAITING(4) POSTPONED(5) SHELVED(6) | DONE(0) ABANDONED(9)
+#+TAGS: URGENT(0) PRIO1(1) PRIO2(2) PRIO3(3) ADMIN(a) CODING(c) WRITING(w) TOC(t)
+#+ARCHIVE: dtc-workshop-notes-wasmer_archive.org::
+
+* Description
+
+Log of my workthrough of the DVC tutorial "GitOps for ML: Converting Notebooks
+to Reproducible Pipelines".
+
+- [[https://github.com/RCdeWit/dtc-workshop][Tutorial GitHub repository]]
+- [[https://www.youtube.com/watch?v=6x6GwtNeYdI][Tutorial YouTube video recording]]
+- [[https://dvc.org/doc][DVC docs]]
+* Table of Contents                                                     :TOC:
+- [[#description][Description]]
+- [[#done-fork-the-tutorial-repo][DONE Fork the tutorial repo]]
+- [[#done-download-the-data][DONE Download the data]]
+- [[#done-install-python-environment][DONE Install Python environment]]
+- [[#next-run-the-notebook][NEXT Run the notebook]]
+
+* DONE Fork the tutorial repo
+CLOSED: [2023-05-12 Fri 19:26]
+
+I created [[https://github.com/Irratzo/dtc-workshop][a fork]] of the repository and work on that.
+
+I want to evaluate the [[https://marketplace.visualstudio.com/items?itemName=Iterative.dvc][VSCode DVC extension]]. So I do the tutorial two times
+simultaneously, once in VSCode with the DVC extension, and once in PyCharm
+without. I separate those into the two fork repo branches ~vscode-dvc~ and
+~pycharm~. These notes are for now only in the ~main~ branch under =notes/=.
+
+Local file repo locations:
+
+- [[file:~/src/forks/dtc-workshop/][dtc-workshop]]. For work on branch ~vscode-dvc~.
+- [[file:~/src/forks/dtc-workshop-pycharm/][dtc-workshop-pycharm]]. For work on branch ~pycharm~.
+* DONE Download the data
+CLOSED: [2023-05-12 Fri 19:26]
+Downloaded to repo =./data/external=, unpacked the two zips into =pokemon/= and
+=pokemon-images/=.
+* DONE Install Python environment
+CLOSED: [2023-05-14 Sun 19:26]
+
+For both branches: the [[https://github.com/RCdeWit/dtc-workshop/blob/e69b85bd79602d6491b52da32569e4e6331373a9/requirements.txt#L1][requirements.txt]]
+
+- assumes strict version constraints for compatibility
+- assumes as hardware an older Apple Mac with M1 chip. That's why they use
+  =tensorflow-macos= and =tensorflow-metal=, and specific versions.For other
+  hardware, such as my M2 chip,replace with =tensorflow=. In the video, they
+  replace with ~tensorflow==2.11.0=~
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop/requirements.txt
+#+end_src
+
+#+RESULTS:
+#+begin_example
+notebook==6.5.2
+dvc[all]==2.44.0
+tensorflow-macos==2.9
+tensorflow-metal==0.5.0
+pandas==1.5.3
+pillow==9.4.0
+matplotlib==3.6.3
+scikit-learn==1.2.1
+isort==5.12.0
+pickle-mixin==1.0.2
+#+end_example
+
+
+I deviate from that.
+
+In both branches, I replace the M1 tensorflow versions with =tensorflow=. I
+replace =notebook= with =jupyterlab=, cause it's a superset and I prefer to have
+it.
+
+In branch ~vscode-dvc~, VSCode extension DVC version v08.11 complained that
+extension is not compatible with ~dvc[all]==2.44.0~ and requires at least
+~dvc[all]==2.44.0~. So, I lift all veersion constraints here.
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop/requirements-original.txt
+#+end_src
+
+#+RESULTS:
+#+begin_example
+notebook==6.5.2
+dvc[all]==2.44.0
+tensorflow-macos==2.9
+tensorflow-metal==0.5.0
+pandas==1.5.3
+pillow==9.4.0
+matplotlib==3.6.3
+scikit-learn==1.2.1
+isort==5.12.0
+pickle-mixin==1.0.2
+#+end_example
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop/requirements.txt
+#+end_src
+
+#+RESULTS:
+: jupyterlab
+: dvc[all]
+: tensorflow
+: pandas
+: pillow
+: matplotlib
+: scikit-learn
+: isort
+: pickle-mixin
+
+In branch ~pycharm~, I only adopting the same ~tensorflow==2.11.0~ version as in
+the tutorial video and leaving everything else as is produced a patchy
+environment. So I also went with the constraintless reqs version here. I could
+enforce ~dvc[all]==2.44.0~ here since not bound by DVC extension. But better
+keep needed adjustments consistent between both branches, so same env. As for
+the =pickle-mixin=, I can always commit a freeze env later, if DVC does not
+already support on its own.
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop-pycharm/requirements.txt
+#+end_src
+
+#+RESULTS:
+: jupyterlab
+: dvc[all]
+: tensorflow
+: pandas
+: pillow
+: matplotlib
+: scikit-learn
+: isort
+: pickle-mixin
+
+In both branches, I rename the old requirements file to
+=requirements-original.txt= and the new one to =requirements.txt=. Both IDEs by
+default install env fixed on this filename, so this swap makes that easier.
+
+Create venv/pip env from requirements file in PyCharm. Note that PyCharm
+automatically selects the file ~requirements.txt~ for this. Project Settings >
+Add interpreter > PyCharm creates the env in the repo folder =./venv=. Create,
+done.
+
+Create venv/pip env from requirements file in VSCode. Command Palette >
+Python: Create environment > Leave all default (package manager venv, Python
+version, requirements file selection). Create. VSCode creates the env in the
+repo folder =./.venv=.
+
+Side note: To delete the env, eg if something went wrong, in both cases, just
+remove the corresponding folder and repeat process.
+
+Now I freeze the installed environments.
+
+In PyCharm, Tools > Sync Python Environments did not work for me.
+
+So, in both branches / IDEs, I did ~pip freeze > requirements.txt~, hand-picked
+out above libraries, and overwrote =requirements.txt= with that again.
+
+(While doing it also found out, that again, PyCharm had not installed many of
+the reqs in the env, even without version constraints. So, next time do it with
+~pip~ direcly, in the first place ... The env install via VSCode worked,
+however.)
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop/requirements.txt
+#+end_src
+
+#+RESULTS:
+: jupyterlab==3.6.3
+: dvc[all]==2.56.0
+: tensorflow==2.12.0
+: pandas==2.0.1
+: Pillow==9.5.0
+: matplotlib==3.7.1
+: scikit-learn==1.2.2
+: isort==5.12.0
+: pickle-mixin==1.0.2
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop-pycharm/requirements.txt
+#+end_src
+
+#+RESULTS:
+: jupyterlab==3.6.3
+: dvc[all]==2.56.0
+: tensorflow==2.12.0
+: pandas==2.0.1
+: Pillow==9.5.0
+: matplotlib==3.7.1
+: scikit-learn==1.2.2
+: isort==5.12.0
+: pickle-mixin==1.0.2
+
+However, then I found out that on my MacBook Pro M2, these Tensorflow
+installations did not work. So, got to do an intermezzo, how to install
+TensorFlow on Apple M2 in 2023-05. Putting that in phd-project-wasmer > work
+journal > install tensorflow, pytorch, jax on Apple M2 ([[https://iffgit.fz-juelich.de/phd-project-wasmer/notes/public/-/blob/main/work/work-journal/themed/2023-05-13-deep-learning-on-apple-m2/deep-learning-on-apple-m2.org][web link]]). Then return
+here.
+
+After analysis there, it turns out that venv/pip env creation with
+VSCode/PyCharm venv/pip env creation features does produce a working TensorFlow
+installation, but doing it by hand with venv/pip from same requirements file
+without version constraints DOES produce a working TensorFlow installation. So,
+I did that instead, and copied the resulting environment folder into the
+respective VSCode / PyCharm projects.
+
+#+begin_src shell
+rm -rf ~/src/forks/dtc-workshop/.venv
+rm -rf ~/src/forks/dtc-workshop-pycharm/venv
+
+cp -r ~/venvs/venv-dtc-workshop ~/src/forks/dtc-workshop/.venv
+cp -r ~/venvs/venv-dtc-workshop ~/src/forks/dtc-workshop-pycharm/venv
+
+rm -rf ~/venvs/venv-dtc-workshop ~/venvs/venv-dtc-workshop-requirements.txt
+#+end_src
+
+Here is the pinned requirements of that env after install from requirements with
+not version constraints, performed on <2023-05-14 Sun>, now the same for both
+branches.
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop/requirements.txt
+#+end_src
+
+#+RESULTS:
+: jupyterlab==3.6.3
+: dvc[all]==2.56.0
+: tensorflow==2.13.0rc0
+: pandas==2.0.1
+: Pillow==9.5.0
+: matplotlib==3.7.1
+: scikit-learn==1.2.2
+: isort==5.12.0
+: pickle-mixin==1.0.2
+
+Select the new env.
+
+In VSCode, Command Palette > Python: Select interpreter.
+
+In PyCharm, Project Settings > Pyton Interpreter.
+
+Finally, check that the env now works, including TensorFlow.
+
+In both editors, open the classification Jupyter notebook, and run the "Imports"
+cell. It should run now without error. Maybe have to select the correct kernel
+first.
+* NEXT Run the notebook
