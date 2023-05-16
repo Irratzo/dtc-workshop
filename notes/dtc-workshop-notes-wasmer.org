@@ -103,13 +103,88 @@ to Reproducible Pipelines".
 - [[https://dvc.org/doc][DVC docs]]
 * Table of Contents                                                     :TOC:
 - [[#description][Description]]
+- [[#motivating-example][Motivating example]]
 - [[#done-fork-the-tutorial-repo][DONE Fork the tutorial repo]]
 - [[#done-download-the-data][DONE Download the data]]
 - [[#done-install-python-environment][DONE Install Python environment]]
-- [[#next-run-the-notebook][NEXT Run the notebook]]
+- [[#doing-run-the-notebook][DOING Run the notebook]]
+
+* Motivating example
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=2m13s][02:13]].
+
+The motivating example is a binary Pokemon CNN classifier. Based on a set of
+attributes, the CNN predicts whether a Pokemon is of "water" type or not.
+
+We start with a notebook ~pokemon_classifier.ipynb~ which contains the whole
+training pipeline for manual execution, a working model prototype.
+
+Problem: New Pokemon games were released recently. Consequences
+
+- Changed dataset
+- Probably model drift
+- Changed model performance
+- May need retraining
+
+The prototype needs to be changed -> ML experimentation. End up with a lot of
+different experiments / models with different parameters. How to keep track,
+maintain reproducibility?
+
+We define an experiment = data + code + parameters.
+
+Version control:
+
+- Code, parameters: Git.
+- Data, models: DVC.
+
+DVC ties your data versioning to your Git commit history. DVC has three main features.
+
+- Data version control
+- Pipelines
+- Experiments
+
+DVC data version control.
+
+Instead of committing the data to Git, DVC commits the data's metadata
+~dataset.dvc~ (hash, size, nfiles, ...). This ~.dvc~ file points to something in
+the ~.dvc/cache~. DVC can resolve the specific data files in the remote storage
+(by default, the local computer; cloud storages get duplicated locally, or sth)
+via reflinks. If a new commit changes the ~dataset.dvc~, it can differentially
+point to sth else in the cache. For instance, some images in the training data
+folder were rmoved, and some added. This avoids data deduplication over
+incremental changes.
+
+DVC pipelines.
+
+DVC pipelines are directed acyclic graphs (DAGs) of connected steps or stages.
+For instance, data preprocessing, loading, model training, performance
+evaluation. Each stage has inputs and outputs. This makes it possible to control
+stage execution via DVC. For instance only start data loading once the dataset
+labels and images from preprocessing are stored in DVC cache. This makes
+pipelines reliable and reproducible. DVC pipelines are described as YAML files
+~dvc.yaml~.
+
+(TODO: reproduce the flowcharts shown in video tutorial with mermaid here.)
+
+DVC experiments.
+
+DVC pipelines enable experiments. A ~dvc.yaml~ pipeline has inputs code, data,
+parameters, and outputs model, plots, metrics. Version control:
+
+- Git: Code, parameters, pipeline, metrics.
+- DVC: Data, model, plots.
+
+*A set of specific pipeline, inputs and outputs constitute one experiment = one
+Git commit.* Via version control, we can return to any experiment and reproduce
+it if needed.
+
+The remainder of this workshop is about transforming the motivating example
+Jupyter notebook into such a Git+DVC pipeline.
 
 * DONE Fork the tutorial repo
 CLOSED: [2023-05-12 Fri 19:26]
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=12m8s][12:08]].
 
 I created [[https://github.com/Irratzo/dtc-workshop][a fork]] of the repository and work on that.
 
@@ -124,10 +199,15 @@ Local file repo locations:
 - [[file:~/src/forks/dtc-workshop-pycharm/][dtc-workshop-pycharm]]. For work on branch ~pycharm~.
 * DONE Download the data
 CLOSED: [2023-05-12 Fri 19:26]
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=12m8s][12:08]].
+
 Downloaded to repo =./data/external=, unpacked the two zips into =pokemon/= and
 =pokemon-images/=.
 * DONE Install Python environment
 CLOSED: [2023-05-14 Sun 19:26]
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=15m50s][15:50]].
 
 For both branches: the [[https://github.com/RCdeWit/dtc-workshop/blob/e69b85bd79602d6491b52da32569e4e6331373a9/requirements.txt#L1][requirements.txt]]
 
@@ -340,4 +420,19 @@ Finally, check that the env now works, including TensorFlow.
 In both editors, open the classification Jupyter notebook, and run the "Imports"
 cell. It should run now without error. Maybe have to select the correct kernel
 first.
-* NEXT Run the notebook
+* DOING Run the notebook
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=21m38s][21:38]].
+
+Explanation of the Jupyter notebook model pipeline, Pokemon binary classifier,
+CNN model, TensorFlow.
+
+The dataset before preprocessing consists of a CSV table with 802 samples, and a
+folder of images, one Pokemon per image.
+
+#+begin_src shell :results output
+ls ~/src/forks/dtc-workshop/data/external/images | wc -l
+#+end_src
+
+#+RESULTS:
+:      905
