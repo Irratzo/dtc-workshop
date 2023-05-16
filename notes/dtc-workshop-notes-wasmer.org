@@ -103,13 +103,19 @@ to Reproducible Pipelines".
 - [[https://dvc.org/doc][DVC docs]]
 * Table of Contents                                                     :TOC:
 - [[#description][Description]]
-- [[#motivating-example][Motivating example]]
+- [[#intro-and-motivating-example][Intro and motivating example]]
 - [[#done-fork-the-tutorial-repo][DONE Fork the tutorial repo]]
 - [[#done-download-the-data][DONE Download the data]]
 - [[#done-install-python-environment][DONE Install Python environment]]
-- [[#doing-run-the-notebook][DOING Run the notebook]]
+- [[#done-run-the-notebook][DONE Run the notebook]]
+  - [[#data-preprocessing][Data preprocessing]]
+  - [[#load-training-data-and-create-split][Load training data and create split]]
+  - [[#define-model-and-train][Define model and train]]
+  - [[#plot-training-history-and-save-model][Plot training history and save model]]
+  - [[#validation][Validation]]
+- [[#doing-setting-up-dvc-and-tracking-data][DOING Setting up DVC and tracking data]]
 
-* Motivating example
+* Intro and motivating example
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=2m13s][02:13]].
 
@@ -143,7 +149,7 @@ DVC ties your data versioning to your Git commit history. DVC has three main fea
 - Pipelines
 - Experiments
 
-DVC data version control.
+*DVC data version control.*
 
 Instead of committing the data to Git, DVC commits the data's metadata
 ~dataset.dvc~ (hash, size, nfiles, ...). This ~.dvc~ file points to something in
@@ -154,7 +160,7 @@ point to sth else in the cache. For instance, some images in the training data
 folder were rmoved, and some added. This avoids data deduplication over
 incremental changes.
 
-DVC pipelines.
+*DVC pipelines.*
 
 DVC pipelines are directed acyclic graphs (DAGs) of connected steps or stages.
 For instance, data preprocessing, loading, model training, performance
@@ -166,7 +172,7 @@ pipelines reliable and reproducible. DVC pipelines are described as YAML files
 
 (TODO: reproduce the flowcharts shown in video tutorial with mermaid here.)
 
-DVC experiments.
+*DVC experiments.*
 
 DVC pipelines enable experiments. A ~dvc.yaml~ pipeline has inputs code, data,
 parameters, and outputs model, plots, metrics. Version control:
@@ -205,7 +211,7 @@ Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=12m8s][
 Downloaded to repo =./data/external=, unpacked the two zips into =pokemon/= and
 =pokemon-images/=.
 * DONE Install Python environment
-CLOSED: [2023-05-14 Sun 19:26]
+CLOSED: [2023-05-16 Tue 15:01]
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=15m50s][15:50]].
 
@@ -420,9 +426,15 @@ Finally, check that the env now works, including TensorFlow.
 In both editors, open the classification Jupyter notebook, and run the "Imports"
 cell. It should run now without error. Maybe have to select the correct kernel
 first.
-* DOING Run the notebook
+* DONE Run the notebook
+CLOSED: [2023-05-16 Tue 22:54]
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=21m38s][21:38]].
+
+Run the notebook ~pokemon_classifier.ipynb~ and explain what it does.
+
+I added minor additional explanations right inside the notebook , for now on
+branch ~pycharm~.
 
 Explanation of the Jupyter notebook model pipeline, Pokemon binary classifier,
 CNN model, TensorFlow.
@@ -436,3 +448,147 @@ ls ~/src/forks/dtc-workshop/data/external/images | wc -l
 
 #+RESULTS:
 :      905
+
+
+** Data preprocessing
+
+"Not really important to understand the content of these cells before we replace
+them later on."
+
+The function ~preprocess_training_labels~ turns the original table into one
+where you get a one-hot encording for every of the two types a Pokemon posesses.
+
+The function ~preprocess_training_data~ add the image filepaths to the table and
+moves the image files to the =data/processed= directory.
+
+
+** Load training data and create split
+
+The function ~load_training_data~ uses ~tf.keras.utils~ functions ~load_img~ and ~img_to_array~ to load images
+from table, convert to list of Numpy arrays, and return as one large array ~X~.
+
+Explanation for the shape of the training data `X`. The first dimension is the
+number of images. The second and third dimensions are the height and width of
+the image. The fourth dimension is the number of channels. The images are RGBA,
+so there are four channels.
+
+(Thanks, GitHub Copilot.)
+
+The function ~create_labels~ just returns a DataFrame with one column, is a
+Pokemon a Water Pokemon, yes/no (one-hot).
+
+The "Train test split" cell creates a 0.8/0.2 train-test split of (X,y). Notice
+that the ~SEED~ for the random split was defined as a global constant in the
+beginning.
+
+The function "Save train and test data" saves all data objects ~X, X_train,
+X_test, y, y_train, y_test~ as respective file dumps ~X.pckl~, etc., using
+function ~pickle.dump~. This is not usually done, but here done as intermediate
+step towards a DVC pipeline, a DAG, where each stage has (data) inputs and
+outpus, see intro. Also note, that ~pickle~ as serialization solution here is
+just for purpose of an easy demo, not something used in production.
+
+** Define model and train
+
+The function ~compile_model~ uses [[https://keras.io/api/models/sequential/][Keras Sequential]] class to define a
+convolutional neural network (CNN) for the given image dimensions in the
+dataset. Note that all model architecture hyperparameters are hardcoded inside
+the function.
+
+As I am doing this on Apple M2, note also this line inside the function.
+
+#+begin_src python
+# Legacy needed for M1/M2
+optimizer = keras.optimizers.legacy.Adam(learning_rate=0.001) #Adam, RMSprop or SGD
+#+end_src
+
+The resulting model is fairly small, with only ~1k parameters.
+
+The function ~train_estimator~ trains the model, calling ~model.fit~.
+
+As I am still in the "traditional ML" mode, vs. deep learning here, terminology
+wrt train, validate, test data. Note ~validation_data=(X_test, y_test)~. So,
+there is no final "test data" on which the model performance is evaluated, as is
+done in traditional ML with cross-validation. Instead, the model is iteratively
+evaluated on this validation data.
+
+~MODEL_EPOCHS~ and ~MODEL_BATCH_SIZE~ are also global constants defined in the
+beginning.
+
+The inner function calculating the ~class_weight~ remedies the class imbalance
+wrt Water Pokemons overrepresentation. From Keras Model docs:
+
+#+begin_quote
+~class_weight~: Optional dictionary mapping class indices (integers) to a weight
+(float) value, used for weighting the loss function (during training only). This
+can be useful to tell the model to "pay more attention" to samples from an
+under-represented class.
+#+end_quote
+
+** Plot training history and save model
+
+The function ~save_estimator~ plots loss and accuracy of the model during
+training, and saves the model to disk under ~$PROJECT/outputs/model~.
+
+Note that the [[https://keras.io/api/saving/][Keras save]] method saves the model as a /directory/, not a single
+file. The ~.pb~ file format is [[https://github.com/protocolbuffers/protobuf][protobuf]] format and stores a TensorFlow neural
+network.
+
+#+begin_src shell :results output
+tree ~/src/forks/dtc-workshop-pycharm/outputs/
+#+end_src
+
+#+RESULTS:
+#+begin_example
+/Users/wasmer/src/forks/dtc-workshop-pycharm/outputs/
+|-- model
+|   |-- assets
+|   |-- fingerprint.pb
+|   |-- keras_metadata.pb
+|   |-- saved_model.pb
+|   `-- variables
+|       |-- variables.data-00000-of-00001
+|       `-- variables.index
+`-- train_history.png
+
+3 directories, 6 files
+#+end_example
+
+
+** Validation
+
+With "validation" here, model performance, model evaluation is meant, NOT data
+split train/test.)
+
+The function ~predict_pokemon~ takes the trained model for a spin, predicting
+whether a given Pokemon is Water type or not, and printing its image.
+
+The next cell loads the data model and data from disk, as part of the pipeline
+DAG I/O perspective. From the DVC pipeline DAG I/O perspective, the validation
+stage requires to load the model and the data from disk, as input.
+
+Next, the ~predictions = model.predict(X) > 0.5~ is called (returns a True/False
+binary classification Numpy array for each sample). These are then used to
+compute model metrics for classification tasks, accuracy, precision, recall and
+F1 score. Note that these are computed on the /whole/ dataset from the predicted
+and true labels ~(predictions, y)~.
+
+Finally, a confusion matrix is plotted and saved. Note that the model almost
+always classifies Water Pokemons correctly, but is not better at classifying
+non-Water Pokemon than random guessing. Again, probably due to class imbalance.
+
+The tutor again emphasized, such a model would not be put into production, it is
+merely a working example for this tutorial.
+
+So, this is the model prototype.
+
+* DOING Setting up DVC and tracking data
+
+Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#setting-up-dvc-and-tracking-data][section]].
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=30m25s][30:25]].
+
+#+begin_quote
+This point may be familiar to you: a working prototype in a notebook. Now, how
+do we transform it into a reproducible DVC pipeline?
+#+end_quote
