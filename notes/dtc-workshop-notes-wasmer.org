@@ -213,6 +213,7 @@ cat ~/src/forks/dtc-workshop-pycharm/requirements.txt
 
 #+RESULTS:
 : jupyterlab
+: notebook
 : dvc[all]
 : tensorflow
 : pandas
@@ -221,6 +222,10 @@ cat ~/src/forks/dtc-workshop-pycharm/requirements.txt
 : scikit-learn
 : isort
 : pickle-mixin
+
+(Update <2023-05-16 Tue>: Added ~notebook~ cause PyCharm Jupyter notebooks
+require ~notebook~ not ~jupyterlab~ to work properly, see my [[https://youtrack.jetbrains.com/issue/PY-35688/Jupyter-notebook-using-wrong-executable-and-path#focus=Comments-27-7335157.0-0][error & solution
+report]].)
 
 In both branches, I rename the old requirements file to
 =requirements-original.txt= and the new one to =requirements.txt=. Both IDEs by
@@ -272,6 +277,7 @@ cat ~/src/forks/dtc-workshop-pycharm/requirements.txt
 
 #+RESULTS:
 : jupyterlab==3.6.3
+: notebook==6.5.4
 : dvc[all]==2.56.0
 : tensorflow==2.12.0
 : pandas==2.0.1
