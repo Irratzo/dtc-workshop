@@ -1,4 +1,5 @@
 jupyterlab
+notebook
 dvc[all]
 tensorflow
 pandas
