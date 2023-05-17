@@ -95,14 +95,20 @@
 
 * Description
 
-Log of my workthrough of the DVC tutorial "GitOps for ML: Converting Notebooks
+Log of my workthrough of the [[https://iterative.ai/blog/jupyter-notebook-dvc-pipeline/][DVC tutorial]] "GitOps for ML: Converting Notebooks
 to Reproducible Pipelines".
 
-- [[https://github.com/RCdeWit/dtc-workshop][Tutorial GitHub repository]]
-- [[https://www.youtube.com/watch?v=6x6GwtNeYdI][Tutorial YouTube video recording]]
-- [[https://dvc.org/doc][DVC docs]]
+Throughout, I add notes on application of this tutorial to two of my current
+applicable projects. I label these notes with headings "Application to personal
+projects".
+
+- [[https://iffgit.fz-juelich.de/phd-project-wasmer/projects/single-impurity-database][single-impurity-database]] > notebooks [[https://iffgit.fz-juelich.de/phd-project-wasmer/projects/single-impurity-database/-/tree/master/notebooks/data_generation][data generation]].
+- [[https://iffgit.fz-juelich.de/phd-project-wasmer/projects/jij-prediction][jij-prediction]] > notebook "model training"
+  - at time of writing, this notebook is stored here [[https://iffgit.fz-juelich.de/phd-project-wasmer/teaching/sisclab2022-project6-git/-/blob/skm23/notebooks/work-package-2/johannes/skm23/skm23c-model-training.ipynb][model training]], but will be
+    moved to jij-prediction later.
 * Table of Contents                                                     :TOC:
 - [[#description][Description]]
+- [[#useful-links][Useful links]]
 - [[#intro-and-motivating-example][Intro and motivating example]]
 - [[#done-fork-the-tutorial-repo][DONE Fork the tutorial repo]]
 - [[#done-download-the-data][DONE Download the data]]
@@ -114,7 +120,32 @@ to Reproducible Pipelines".
   - [[#plot-training-history-and-save-model][Plot training history and save model]]
   - [[#validation][Validation]]
 - [[#doing-setting-up-dvc-and-tracking-data][DOING Setting up DVC and tracking data]]
+  - [[#setting-up-dvc-and-tracking-data---dvc-init][Setting up DVC and tracking data - dvc init]]
+  - [[#setting-up-dvc-and-tracking-data---git-commit][Setting up DVC and tracking data - git commit]]
+  - [[#setting-up-dvc-and-tracking-data---add-a-remote-for-data][Setting up DVC and tracking data - Add a remote for data]]
 
+* Useful links
+
+For the tutorial.
+
+- [[https://iterative.ai/blog/jupyter-notebook-dvc-pipeline/][Tutorial blog article]]
+- [[https://github.com/RCdeWit/dtc-workshop][Tutorial GitHub repository]]
+- [[https://www.youtube.com/watch?v=6x6GwtNeYdI][Tutorial YouTube video recording]]
+- [[https://dvc.org/doc][DVC docs]]
+- [[https://marketplace.visualstudio.com/items?itemName=Iterative.dvc#what-you-get][DVC VSCode extension]]. "The first experiment tracking interface for an IDE".
+  - [[https://github.com/iterative/vscode-dvc#what-you-get][What you get]]
+  - [[https://github.com/iterative/vscode-dvc#useful-commands][Useful commands]]
+- DVC Cheat sheets
+  - [[https://www.globalsqa.com/dvc-cheat-sheet/][DVC Cheat sheet by GlobalSQA]]
+  - [[https://dvc.org/doc/command-reference][dvc.org/doc/command-reference]]
+  - [[https://derekchia.com/dvc/][derekchia.com - DVC Cheatsheet]]
+
+Beyond the tutorial.
+
+- iterative.ai Blog
+  - [[https://iterative.ai/blog/exp-tracking-dvc-python/?tab=General-Python-API][Instant Experiment Tracking: Just Add DVC!]]
+    - Quick-start guide on migrating an existing project, using [[https://dvc.org/doc/dvclive][DVCLive]].
+- [[https://dagshub.com/khuyentran1401/Machine-learning-pipeline][khuyentran1401/machine-learning-pipeline]]. Tutorial combining MLFlow, Hydra and DVC.
 * Intro and motivating example
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=2m13s][02:13]].
@@ -583,6 +614,7 @@ merely a working example for this tutorial.
 So, this is the model prototype.
 
 * DOING Setting up DVC and tracking data
+** Setting up DVC and tracking data - dvc init
 
 Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#setting-up-dvc-and-tracking-data][section]].
 
@@ -592,3 +624,219 @@ Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=30m25s]
 This point may be familiar to you: a working prototype in a notebook. Now, how
 do we transform it into a reproducible DVC pipeline?
 #+end_quote
+
+From the motivating example, say we change the dataset because of integration of
+a new set of Pokemons. Then we run another experiment characterized by this
+changed data, and maybe we also want to adapt the model or try out different
+parameters. Then, all of the serialized input and output data and models and
+metrics would be overwritten. We don't want that. So we'll start data versioning
+with DVC now.
+
+Start with adding the first input data.
+
+Input in branches ~pycharm~ PyCharm terminal / ~vscode-dvc~ VSCode terminal.
+
+Note that ~dvc~ CLI is modeled closely on the ~git~ CLI, so often, a Git+DVC
+project vs. a Git DVC project requires to repeat the same or similar command
+twice, once for code and once for data.
+
+#+begin_src shell
+# init DVC
+dvc init
+# if .dvc/ already exists
+dvc init -f
+
+# add external data
+dvc add data/external/
+#+end_src
+
+This has two effects. The directory is added to ~.gitignore~, and a file
+~external.dvc~ is created.
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop-pycharm/data/.gitignore
+#+end_src
+
+#+RESULTS:
+: /external
+: outs:
+: - md5: 8caf358d685344d3eb8b0ee6783275ff.dir
+:   size: 235910211
+:   nfiles: 908
+:   path: external
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop-pycharm/data/external.dvc
+#+end_src
+
+#+RESULTS:
+: outs:
+: - md5: 8caf358d685344d3eb8b0ee6783275ff.dir
+:   size: 235910211
+:   nfiles: 908
+:   path: external
+
+Only evident in the tutorial video: ~git status~ reveals that also created three
+new files were created, ~.dvc/.gitignore~, ~.dvc/config, ~.dvcignore~. This is
+not evident when starting with the tutorial repo, cause it already has a
+~.dvc/~, so DVC was already initialized.
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop-pycharm/.dvc/.gitignore
+#+end_src
+
+#+RESULTS:
+: /config.local
+: /tmp
+: /cache
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop-pycharm/.dvc/config
+#+end_src
+
+#+RESULTS:
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop-pycharm/.dvcignore
+#+end_src
+
+#+RESULTS:
+: # Add patterns of files dvc should ignore, which could improve
+: # the performance. Learn more at
+: # https://dvc.org/doc/user-guide/dvcignore
+
+*Application to personal projects.*
+
+- single-impurity-database.
+  - Add script / notebook cell to download [[https://molmod.ugent.be/deltacodesdft][deltacodesdft]] structures
+  - Add as ~data/external~
+- jij-prediction.
+  - add AiiDA-exported data as ~data/external~.
+** Setting up DVC and tracking data - git commit
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=33m22s][33:22]].
+
+The video tutorial now does this.
+
+#+begin_src shell
+git add .dvc; git commit -m "dvc init, dvc add /data/external"
+#+end_src
+
+This is why the tutorial repo branch ~main~ already has a ~.dvc~ folder. The
+tutor says that he should have done that in a branch ~practice~, really, and
+switches to that branch for the remainder of the tutorial.
+
+To reinit the repo to the state before DVC, I apply this manual fix in both
+my tutorial branches ~pycharm~ and ~vscode-dvc~.
+
+#+begin_src shell
+# reinit repo to state before DVC
+rm -rf data/.gitignore data/external.dvc .dvcignore .dvc
+git add .dvcignore .dvc/ ; git commit -m "undo tutorial dvc init ..." -m "- tutorial by accident already did 'dvc init' and 'dvc add data/external' on branch main" -m "- tutorial then switched to branch practice, but left original commit in main" -m "- this commit resets the repo to the state before DVC init, by removing all DVC changes"
+
+# add notebook change after 'Run the notebook'
+git add notebooks/ ; git commit -m "notebook state after tutorial section 'run the notebook'"
+git push origin BRANCH
+#+end_src
+
+Now, can do the DVC init step again, as if it were the first time. We'll add the associated metadata files to Git in the same go.
+
+#+begin_src shell
+# init DVC
+dvc init; git add .dvcignore .dvc/; git commit -m "dvc init"
+
+# add external data
+dvc add data/external/; git add data/external.dvc data/.gitignore; git commit -m "dvc add /data/external"
+#+end_src
+
+** Setting up DVC and tracking data - Add a remote for data
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=35m0s][35:00]].
+
+Just as Git has a remote storage for code and associate command ~git push~, in
+this case GitHub, DVC allows to add a remote for data and associate command ~dvc
+push~.
+
+See [[https://dvc.org/doc/user-guide/data-management/remote-storage#remote-storage][DVC docs - Remote Storage]].
+
+Video tutorial uses [[https://dvc.org/doc/user-guide/data-management/remote-storage/google-drive#how-to-setup-a-google-drive-dvc-remote][Google Drive]] as remote storage for demo puposes. I, however,
+use self-hosted SSH.
+
+- DVC allows [[https://dvc.org/doc/user-guide/data-management/remote-storage#self-hosted--on-premises][self-hosted remote storage]]: SSH, HDFS, HTTP, WebDAV.
+- Try to set this up for my projects to sunc to ~/Data/division/iff-user~ via SSH.
+
+Okay, on SSH remote ~ifflinux~, set up remote directory
+=/Data/division/iff-user/dvc/dtc-workshop= for this project. Try adding that now
+following the [[https://dvc.org/doc/user-guide/data-management/remote-storage/ssh][DVC docs - SSH]] page.
+
+As docs suggest, first verify connection works for ~ssh~ and ~sftp~.
+
+#+begin_src shell
+ssh iff-user@ifflinux.iff.kfa-juelich.de
+logout
+sftp iff-user@ifflinux.iff.kfa-juelich.de
+exit
+#+end_src
+
+Now, on branch ~pycharm~.
+
+#+begin_src shell
+# dvc remote add -d myremote ssh://user@example.com:2222/path
+dvc remote add -d iff-main ssh://iff-user@ifflinux.iff.kfa-juelich.de/Data/division/iff-user/dvc/dtc-workshop
+# dvc remote modify --local myremote keyfile /path/to/keyfile
+dvc remote modify --local iff-main keyfile ~/.ssh/id_rsa
+# push data/external to remote, as initial test
+dvc push
+# if successful, commit config change
+git add .dvc ; git commit -m "dvc remote add -d iff-main (remote repo for project data)"
+git push origin pycharm
+#+end_src
+
+The ~dvc remote add~ updated the DVC config.
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop-pycharm/.dvc/config
+#+end_src
+
+#+RESULTS:
+: [core]
+:     remote = iff-main
+: ['remote "iff-main"']
+:     url = ssh://iff-user@ifflinux.iff.kfa-juelich.de/Data/division/iff-user/dvc/dtc-workshop
+
+After the ~dvc push~, the remote storage is populated. But not with the
+identical content of ~data/external~, but instead hash-based folders ~00/~ to
+~ff/~, with hash-based files in them, like ~ff/e39770f78253994bf4a4db7e8d6d7b~.
+Looks a lot like AiiDA remote (working directory) file storage scheme.
+
+Now, the interesting question is, how to sync that with the branch ~vscode-dvc~?
+I can't do the same and ~dvc push~ there, since the data is already in the
+remote. So instead, I could try to tmp move local ~data/external~ to the side,
+do a ~dvc pull~ instead and see if the data gets downloaded.
+
+On branch ~vscode-dvc~.
+
+#+begin_src shell
+# dvc remote add -d myremote ssh://user@example.com:2222/path
+dvc remote add -d iff-main ssh://iff-user@ifflinux.iff.kfa-juelich.de/Data/division/iff-user/dvc/dtc-workshop
+# dvc remote modify --local myremote keyfile /path/to/keyfile
+dvc remote modify --local iff-main keyfile ~/.ssh/id_rsa
+# remove (or mv backup) local data/external and replace with the one from remote
+rm -rf data/external
+dvc pull
+# if successful, commit config change
+git add .dvc ; git commit -m "dvc remote add -d iff-main (remote repo for project data)"
+git push origin vscode-dvc
+#+end_src
+
+It worked! ~dvc pull~ restored the original ~data/external~ contents from the
+remote.
+
+*Application to personal projects.*
+
+- Set this up for all my personal projects with data. Also use
+  ~/Data/division/username/dvc/~ as base. Mind the ~quota~ on ~/Data~.
+  - single-impurity-database.
+    - all data not stored in AiiDA / iffAiiDA.
+    - Minor detail: What about archives exported from AiiDA DB?
+  - jij-prediction.
