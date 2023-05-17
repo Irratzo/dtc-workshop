@@ -123,8 +123,12 @@ projects".
   - [[#setting-up-dvc-and-tracking-data---dvc-init][Setting up DVC and tracking data - dvc init]]
   - [[#setting-up-dvc-and-tracking-data---git-commit][Setting up DVC and tracking data - git commit]]
   - [[#setting-up-dvc-and-tracking-data---add-a-remote-for-data][Setting up DVC and tracking data - Add a remote for data]]
-- [[#create-paramsyaml][Create ~params.yaml~]]
-- [[#create-python-modules][Create Python modules]]
+- [[#done-create-paramsyaml][DONE Create ~params.yaml~]]
+- [[#doing-turn-notebook-into-to-python-modules][DOING Turn notebook into to Python modules]]
+  - [[#turn-notebook-into-to-python-modules---copy-solution][Turn notebook into to Python modules - Copy solution]]
+  - [[#turn-notebook-into-to-python-modules---best-practice][Turn notebook into to Python modules - Best practice]]
+  - [[#turn-notebook-into-to-python-modules---run-pipeline][Turn notebook into to Python modules - Run pipeline]]
+  - [[#turn-notebook-into-to-python-modules---debugging][Turn notebook into to Python modules - Debugging]]
 
 * Useful links
 
@@ -845,7 +849,8 @@ remote.
     - Minor detail: What about archives exported from AiiDA DB?
   - jij-prediction.
 
-* Create ~params.yaml~
+* DONE Create ~params.yaml~
+CLOSED: [2023-05-17 Wed 11:52]
 
 Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#create-paramsyaml][section]].
 
@@ -882,8 +887,125 @@ train:
 git add params.yaml; git commit -m "start build DVC pipeline, create params.yaml" ; git push origin branch-name
 #+end_src
 
-* Create Python modules
+* DOING Turn notebook into to Python modules
+In tutorial repo, this section is called "Creat Python modules".
+** Turn notebook into to Python modules - Copy solution
 
 Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#create-python-modules][section]].
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=42m50s][42:50]].
+
+Turn the notebook prototype into Python modules. We'll use the solution's
+[[https://github.com/RCdeWit/dtc-workshop/commit/1881a0e6cf9379eea53355f6e3fdd76890f48eac][specific commit]], where the tutor committed the finished ~src/~ folder from this
+step to the solution repo.
+
+#+begin_src shell
+git clone git@github.com:RCdeWit/dtc-workshop.git dtc-workshop-solution
+cd dtc-workshop-solution
+git checkout 1881a0e6cf9379eea53355f6e3fdd76890f48eac
+cp -r src ../dtc-workshop-pycharm
+cp -r src ../dtc-workshop-vscode-dvc
+#+end_src
+
+#+begin_src shell :results output
+tree -I "*.pyc" -I "__pycache__" ~/src/forks/dtc-workshop-pycharm/src
+#+end_src
+
+#+RESULTS:
+: /Users/wasmer/src/forks/dtc-workshop-pycharm/src
+: |-- data_load.py
+: |-- data_preprocess.py
+: |-- evaluate.py
+: |-- train.py
+: `-- utils
+:     `-- find_project_root.py
+:
+: 1 directory, 5 files
+
+** Turn notebook into to Python modules - Best practice
+
+Some notes on how the tutor turned the notebook cells into modules. These can
+serve as *best practices* / *guideline* for manually turning an ML training
+notebook pipeline into Python modules, and indeed, any kind of computational
+task.
+
+- Each module represents one pipeline stage now.
+- Each module is script-enabled with an ~argparse~ CLI, by having a ~__main__~
+  section at the end that loads the ~params.yaml~. Then, global constants needed
+  for this stage are read from the ~params.yaml~.
+
+  Example.
+
+  #+begin_src python
+  if __name__ == '__main__':
+
+      args_parser = argparse.ArgumentParser()
+      args_parser.add_argument('--params', dest='params', required=True)
+      args = args_parser.parse_args()
+
+      with open(args.params) as param_file:
+          params = yaml.safe_load(param_file)
+
+      PROJECT_ROOT = find_project_root()
+
+      SOURCE_DIRECTORY: str = params['data_preprocess']['source_directory']
+  #+end_src
+
+- The only exception is the absolute directory of the project root. Since this
+  is user-specific, this is instead in ~utls.find_project_root~. It goes through
+  parent and stops once it has found one which contains a ~.git/~.
+- Some notebook cells get turned into module functions, others are part of the
+  module's ~__main__~ section, which also calls the functions.
+- In ~data_preprocessing~ main section, preprocessing functions are called on
+  the external data.
+- In ~data_preprocessing~ main section, the preprocesed data is loaded,
+  train/test split performed, and the result saved as pickle files as training
+  data.
+- In ~train~ main section, the training data is loaded from disk, the model is
+  compiled, trained and saved to disk.
+- In ~evaluate~ main section, the model and train data is loaded, the evaluation
+  metrics are computed, plotted and saved to disk.
+
+** Turn notebook into to Python modules - Run pipeline
+
+With the ~src~ package finished, the same pototype pipeline from the notebook can now be run from the command line.
+
+#+begin_src shell
+python src/data_preprocess.py --params params.yaml
+python src/data_load.py --params params.yaml
+python src/train.py --params params.yaml
+python src/evaluate.py --params params.yaml
+#+end_src
+
+** Turn notebook into to Python modules - Debugging
+
+In my case, running the modules got stuck.
+
+#+begin_src shell
+python src/data_preprocess.py --params params.yaml # OK
+python src/data_load.py --params params.yaml       # OK
+python src/train.py --params params.yaml           # FAIL
+python src/evaluate.py --params params.yaml
+#+end_src
+
+First change. Since I am on Apple M2, use legacy Adam optimizer in
+~compile_model~. Actually, TensorFlow did fallback automatically in first trial
+run, but printed a warning.
+
+#+begin_src python
+# # default
+# optimizer = keras.optimizers.Adam(learning_rate=MODEL_LEARNING_RATE) #Adam, RMSprop or SGD
+# Legacy needed for M1/M2
+optimizer = keras.optimizers.legacy.Adam(learning_rate=MODEL_LEARNING_RATE)  # Adam, RMSprop or SGD
+#+end_src
+
+Second change. Run ~train.py~ fails when calling ~model.fit~ with error message.
+
+#+begin_example
+# # default
+# optimizer = keras.optimizers.Adam(learning_rate=MODEL_LEARNING_RATE) #Adam, RMSprop or SGD
+# Legacy needed for M1/M2
+optimizer = keras.optimizers.legacy.Adam(learning_rate=MODEL_LEARNING_RATE)  # Adam, RMSprop or SGD
+#+end_example
+
+Now figure out how to PyCharm debug script file with ~--params param.yaml~ arguments.
