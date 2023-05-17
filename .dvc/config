@@ -1,0 +1,4 @@
+[core]
+    remote = iff-main
+['remote "iff-main"']
+    url = ssh://wasmer@ifflinux.iff.kfa-juelich.de/Data/ias-1/wasmer/dvc/dtc-workshop
