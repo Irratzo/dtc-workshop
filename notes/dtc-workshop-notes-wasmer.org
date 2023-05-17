@@ -119,10 +119,12 @@ projects".
   - [[#define-model-and-train][Define model and train]]
   - [[#plot-training-history-and-save-model][Plot training history and save model]]
   - [[#validation][Validation]]
-- [[#doing-setting-up-dvc-and-tracking-data][DOING Setting up DVC and tracking data]]
+- [[#done-setting-up-dvc-and-tracking-data][DONE Setting up DVC and tracking data]]
   - [[#setting-up-dvc-and-tracking-data---dvc-init][Setting up DVC and tracking data - dvc init]]
   - [[#setting-up-dvc-and-tracking-data---git-commit][Setting up DVC and tracking data - git commit]]
   - [[#setting-up-dvc-and-tracking-data---add-a-remote-for-data][Setting up DVC and tracking data - Add a remote for data]]
+- [[#create-paramsyaml][Create ~params.yaml~]]
+- [[#create-python-modules][Create Python modules]]
 
 * Useful links
 
@@ -613,7 +615,8 @@ merely a working example for this tutorial.
 
 So, this is the model prototype.
 
-* DOING Setting up DVC and tracking data
+* DONE Setting up DVC and tracking data
+CLOSED: [2023-05-17 Wed 10:21]
 ** Setting up DVC and tracking data - dvc init
 
 Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#setting-up-dvc-and-tracking-data][section]].
@@ -807,7 +810,8 @@ cat ~/src/forks/dtc-workshop-pycharm/.dvc/config
 After the ~dvc push~, the remote storage is populated. But not with the
 identical content of ~data/external~, but instead hash-based folders ~00/~ to
 ~ff/~, with hash-based files in them, like ~ff/e39770f78253994bf4a4db7e8d6d7b~.
-Looks a lot like AiiDA remote (working directory) file storage scheme.
+Looks a lot like AiiDA remote (working directory) file storage scheme. These
+correspond to the file hashes stored in the repo's ~.dvc/cache/~.
 
 Now, the interesting question is, how to sync that with the branch ~vscode-dvc~?
 I can't do the same and ~dvc push~ there, since the data is already in the
@@ -840,3 +844,46 @@ remote.
     - all data not stored in AiiDA / iffAiiDA.
     - Minor detail: What about archives exported from AiiDA DB?
   - jij-prediction.
+
+* Create ~params.yaml~
+
+Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#create-paramsyaml][section]].
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=41m37s][41:37]].
+
+Now we are finally set up to start building a [[https://dvc.org/doc/user-guide/pipelines#pipelines][DVC pipeline]].
+
+Create ~./params.yaml~, same content as in tutorial repo README section. Similar to parameters in notebook.
+
+#+begin_src shell :results output
+cat ~/src/forks/dtc-workshop-pycharm/params.yaml
+#+end_src
+
+#+RESULTS:
+#+begin_example
+base:
+  seed: 42
+  pokemon_type_train: "Water"
+
+data_preprocess:
+  source_directory: 'data/external'
+  destination_directory: 'data/processed'
+  dataset_labels: 'stats/pokemon-gen-1-8.csv'
+  dataset_images: 'images'
+
+train:
+  test_size: 0.2
+  learning_rate: 0.001
+  epochs: 15
+  batch_size: 120
+#+end_example
+
+#+begin_src shell
+git add params.yaml; git commit -m "start build DVC pipeline, create params.yaml" ; git push origin branch-name
+#+end_src
+
+* Create Python modules
+
+Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#create-python-modules][section]].
+
+Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=42m50s][42:50]].
