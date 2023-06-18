@@ -113,7 +113,10 @@ projects".
 - [[#done-fork-the-tutorial-repo][DONE Fork the tutorial repo]]
 - [[#done-download-the-data][DONE Download the data]]
 - [[#done-install-python-environment][DONE Install Python environment]]
+  - [[#done-install-python-environment---part-1][DONE Install Python environment - Part 1]]
+  - [[#done-install-python-environment---part-2][DONE Install Python environment - Part 2]]
 - [[#done-run-the-notebook][DONE Run the notebook]]
+  - [[#notebook-intro][Notebook intro]]
   - [[#data-preprocessing][Data preprocessing]]
   - [[#load-training-data-and-create-split][Load training data and create split]]
   - [[#define-model-and-train][Define model and train]]
@@ -128,6 +131,7 @@ projects".
   - [[#turn-notebook-into-to-python-modules---copy-solution][Turn notebook into to Python modules - Copy solution]]
   - [[#turn-notebook-into-to-python-modules---best-practice][Turn notebook into to Python modules - Best practice]]
   - [[#turn-notebook-into-to-python-modules---run-pipeline][Turn notebook into to Python modules - Run pipeline]]
+  - [[#intermezzo---enable-dvc-shell-tab-completion][Intermezzo - Enable DVC shell tab completion]]
   - [[#turn-notebook-into-to-python-modules---debugging][Turn notebook into to Python modules - Debugging]]
 
 * Useful links
@@ -145,6 +149,10 @@ For the tutorial.
   - [[https://www.globalsqa.com/dvc-cheat-sheet/][DVC Cheat sheet by GlobalSQA]]
   - [[https://dvc.org/doc/command-reference][dvc.org/doc/command-reference]]
   - [[https://derekchia.com/dvc/][derekchia.com - DVC Cheatsheet]]
+
+*<2023-06-06 Tue> Update*. TODO.
+
+- [[https://www.youtube.com/watch?v=3-DG4WS5Ikk][Tutorial Follow-up YouTube video recording]]
 
 Beyond the tutorial.
 
@@ -177,8 +185,8 @@ We define an experiment = data + code + parameters.
 
 Version control:
 
-- Code, parameters: Git.
-- Data, models: DVC.
+- Code, parameters: Git. Basically, all text files.
+- Data, models: DVC. Basically, all binary files.
 
 DVC ties your data versioning to your Git commit history. DVC has three main features.
 
@@ -194,7 +202,7 @@ the ~.dvc/cache~. DVC can resolve the specific data files in the remote storage
 (by default, the local computer; cloud storages get duplicated locally, or sth)
 via reflinks. If a new commit changes the ~dataset.dvc~, it can differentially
 point to sth else in the cache. For instance, some images in the training data
-folder were rmoved, and some added. This avoids data deduplication over
+folder were rmoved, and some added. This avoids data duplication over
 incremental changes.
 
 *DVC pipelines.*
@@ -238,19 +246,25 @@ without. I separate those into the two fork repo branches ~vscode-dvc~ and
 
 Local file repo locations:
 
-- [[file:~/src/forks/dtc-workshop/][dtc-workshop]]. For work on branch ~vscode-dvc~.
-- [[file:~/src/forks/dtc-workshop-pycharm/][dtc-workshop-pycharm]]. For work on branch ~pycharm~.
+- [[file:~/src/github.com/irratzo/forks/dtc-workshop/][dtc-workshop]]. For work on branch ~vscode-dvc~.
+- [[file:~/src/github.com/irratzo/forks/dtc-workshop-pycharm/][dtc-workshop-pycharm]]. For work on branch ~pycharm~.
 * DONE Download the data
 CLOSED: [2023-05-12 Fri 19:26]
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=12m8s][12:08]].
 
-Downloaded to repo =./data/external=, unpacked the two zips into =pokemon/= and
-=pokemon-images/=.
+Downloaded the training data to repo folder, =./data/external=, unpacked the two
+zips into =pokemon/= and =pokemon-images/=.
 * DONE Install Python environment
-CLOSED: [2023-05-16 Tue 15:01]
+CLOSED: [2023-06-17 Sat 13:46]
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=15m50s][15:50]].
+
+** DONE Install Python environment - Part 1
+CLOSED: [2023-05-16 Tue 15:01]
+
+This part: Creating a ~requirements.txt~ file that works for my hardware, Apple
+MacBook Pro M2.
 
 For both branches: the [[https://github.com/RCdeWit/dtc-workshop/blob/e69b85bd79602d6491b52da32569e4e6331373a9/requirements.txt#L1][requirements.txt]]
 
@@ -261,7 +275,7 @@ For both branches: the [[https://github.com/RCdeWit/dtc-workshop/blob/e69b85bd79
   replace with ~tensorflow==2.11.0=~
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop/requirements.txt
+cat ~/src/github.com/irratzo/forks/dtc-workshop/requirements.txt
 #+end_src
 
 #+RESULTS:
@@ -287,10 +301,10 @@ it.
 
 In branch ~vscode-dvc~, VSCode extension DVC version v08.11 complained that
 extension is not compatible with ~dvc[all]==2.44.0~ and requires at least
-~dvc[all]==2.44.0~. So, I lift all veersion constraints here.
+~dvc[all]==2.56.0~. So, I lift all veersion constraints here.
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop/requirements-original.txt
+cat ~/src/github.com/irratzo/forks/dtc-workshop/requirements-original.txt
 #+end_src
 
 #+RESULTS:
@@ -308,7 +322,7 @@ pickle-mixin==1.0.2
 #+end_example
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop/requirements.txt
+cat ~/src/github.com/irratzo/forks/dtc-workshop/requirements.txt
 #+end_src
 
 #+RESULTS:
@@ -322,16 +336,16 @@ cat ~/src/forks/dtc-workshop/requirements.txt
 : isort
 : pickle-mixin
 
-In branch ~pycharm~, I only adopting the same ~tensorflow==2.11.0~ version as in
+In branch ~pycharm~, I only adopt the same ~tensorflow==2.11.0~ version as in
 the tutorial video and leaving everything else as is produced a patchy
 environment. So I also went with the constraintless reqs version here. I could
-enforce ~dvc[all]==2.44.0~ here since not bound by DVC extension. But better
+enforce ~dvc[all]==2.56.0~ here since not bound by DVC extension. But better
 keep needed adjustments consistent between both branches, so same env. As for
 the =pickle-mixin=, I can always commit a freeze env later, if DVC does not
 already support on its own.
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop-pycharm/requirements.txt
+cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/requirements.txt
 #+end_src
 
 #+RESULTS:
@@ -380,7 +394,7 @@ the reqs in the env, even without version constraints. So, next time do it with
 however.)
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop/requirements.txt
+cat ~/src/github.com/irratzo/forks/dtc-workshop/requirements.txt
 #+end_src
 
 #+RESULTS:
@@ -395,7 +409,7 @@ cat ~/src/forks/dtc-workshop/requirements.txt
 : pickle-mixin==1.0.2
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop-pycharm/requirements.txt
+cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/requirements.txt
 #+end_src
 
 #+RESULTS:
@@ -413,22 +427,25 @@ cat ~/src/forks/dtc-workshop-pycharm/requirements.txt
 However, then I found out that on my MacBook Pro M2, these Tensorflow
 installations did not work. So, got to do an intermezzo, how to install
 TensorFlow on Apple M2 in 2023-05. Putting that in phd-project-wasmer > work
-journal > install tensorflow, pytorch, jax on Apple M2 ([[https://iffgit.fz-juelich.de/phd-project-wasmer/notes/public/-/blob/main/work/work-journal/themed/2023-05-13-deep-learning-on-apple-m2/deep-learning-on-apple-m2.org][web link]]). Then return
-here.
+journal > install tensorflow, pytorch, jax on Apple M2
+
+- [[https://iffgit.fz-juelich.de/phd-project-wasmer/notes/public/-/blob/main/work/work-journal/themed/2023-05-13-deep-learning-on-apple-m2/deep-learning-on-apple-m2.org][web link]]
+- [[file:~/src/iffgit.fz-juelich.de/phd-project-wasmer/notes/main/public/work/work-journal/themed/2023-05-13-deep-learning-on-apple-m2/deep-learning-on-apple-m2.org][local file link]]
 
 After analysis there, it turns out that venv/pip env creation with
-VSCode/PyCharm venv/pip env creation features does produce a working TensorFlow
-installation, but doing it by hand with venv/pip from same requirements file
-without version constraints DOES produce a working TensorFlow installation. So,
-I did that instead, and copied the resulting environment folder into the
+VSCode/PyCharm venv/pip env creation features does NOT produce a working
+TensorFlow installation, but doing it by hand with venv/pip from same
+requirements file without version constraints DOES produce a working TensorFlow
+installation. So, I did that instead, removed the environments created by the
+two respective IDEs, and copied the resulting environment folder into the
 respective VSCode / PyCharm projects.
 
 #+begin_src shell
-rm -rf ~/src/forks/dtc-workshop/.venv
-rm -rf ~/src/forks/dtc-workshop-pycharm/venv
+rm -rf ~/src/github.com/irratzo/forks/dtc-workshop/.venv
+rm -rf ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/venv
 
-cp -r ~/venvs/venv-dtc-workshop ~/src/forks/dtc-workshop/.venv
-cp -r ~/venvs/venv-dtc-workshop ~/src/forks/dtc-workshop-pycharm/venv
+cp -r ~/venvs/venv-dtc-workshop ~/src/github.com/irratzo/forks/dtc-workshop/.venv
+cp -r ~/venvs/venv-dtc-workshop ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/venv
 
 rm -rf ~/venvs/venv-dtc-workshop ~/venvs/venv-dtc-workshop-requirements.txt
 #+end_src
@@ -438,7 +455,7 @@ not version constraints, performed on <2023-05-14 Sun>, now the same for both
 branches.
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop/requirements.txt
+cat ~/src/github.com/irratzo/forks/dtc-workshop/requirements.txt
 #+end_src
 
 #+RESULTS:
@@ -463,9 +480,87 @@ Finally, check that the env now works, including TensorFlow.
 In both editors, open the classification Jupyter notebook, and run the "Imports"
 cell. It should run now without error. Maybe have to select the correct kernel
 first.
+
+** DONE Install Python environment - Part 2
+CLOSED: [2023-06-17 Sat 13:45]
+
+This part: Recreating by hand and updating both environments.
+
+Update <2023-06-17 Sat>. Turns out that, for whatever reason the envs had worked
+initially, they did not work anymore after returning to this project after some
+while. Turns out that
+
+- 1) pip/venv envs are hardcoded to their creation location (in
+  ~venv/bin/activate*~ scripts, variable =VIRTUAL_ENV=). So moving them around,
+  like I did in part 1, will make them unusable, initially. This can be easily
+  fixed, however, by replacing the =VIRTUAL_ENV= value with the new location.
+- 2) The ~venv/bin/python~ was missing. When activated (after fixing 1)) used
+  ~/usr/local/bin/python~, instead. I believe now that this is an issue with my
+  conda / mamba / micromamba ~base~ environment. Details see [[file:~/Desktop/Coding/Python/PythonConfig-Mac_Notes.org::*2023-06-17 base environment may be damaged][here]] (local file
+  link).
+
+So, removed both envs again. Recreate only one at current location. Use this one
+env for both IDEs / project branches. Note that currently on MY system, I MUST
+write ~python3~ instead of ~python~ when creating the env cause latter is Python
+2 and creation would fail with it.
+
+To repeat: From now on, *there is only one env*, not two.
+
+#+begin_src shell
+# only if needed: update requirements.txt dvc version to the one
+# currently required by VSCode DVC extension. As of 2023-06-18:
+# dvc[all]>=2.58.0
+
+# go to project
+cd ~/src/github.com/irratzo/forks/dtc-workshop-pycharm
+# remove old env, if one exists
+rm -rf venv
+
+# create new env. use Python version currently reccomended by
+# https://www.tensorflow.org/install/pip: Python 3.9
+# here, coming from a separate conda env
+~/micromamba/envs/py39env/bin/python -m venv venv
+source venv/bin/activate
+
+# install tensorflow
+pip install --upgrade pip
+pip install tensorflow
+# verify installation
+python3 -c "import tensorflow as tf; print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
+# install env requirements
+pip install -r requirements.txt
+
+# # alternative: install tensorflow and requirements all in one go; should make no difference
+# pip install --upgrade pip
+# pip install -r requirements.txt
+#+end_src
+
+That worked. Done.
+
+In case installing / using TensorFlow pip/venv env fails again, see
+deep-learning-on-apple-m2.org notes for current working method.
+
+- [[https://iffgit.fz-juelich.de/phd-project-wasmer/notes/public/-/blob/main/work/work-journal/themed/2023-05-13-deep-learning-on-apple-m2/deep-learning-on-apple-m2.org][web link]]
+- [[file:~/src/iffgit.fz-juelich.de/phd-project-wasmer/notes/main/public/work/work-journal/themed/2023-05-13-deep-learning-on-apple-m2/deep-learning-on-apple-m2.org][local file link]]
+
+Updated frozen requirements.txt.
+
+#+begin_example
+jupyterlab
+notebook
+dvc[all]>=2.58.0
+tensorflow
+pandas
+Pillow
+matplotlib
+scikit-learn
+isort
+pickle-mixin
+#+end_example
+
 * DONE Run the notebook
 CLOSED: [2023-05-16 Tue 22:54]
-
+** Notebook intro
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=21m38s][21:38]].
 
 Run the notebook ~pokemon_classifier.ipynb~ and explain what it does.
@@ -480,12 +575,11 @@ The dataset before preprocessing consists of a CSV table with 802 samples, and a
 folder of images, one Pokemon per image.
 
 #+begin_src shell :results output
-ls ~/src/forks/dtc-workshop/data/external/images | wc -l
+ls ~/src/github.com/irratzo/forks/dtc-workshop/data/external/images | wc -l
 #+end_src
 
 #+RESULTS:
 :      905
-
 
 ** Data preprocessing
 
@@ -498,33 +592,33 @@ where you get a one-hot encording for every of the two types a Pokemon posesses.
 The function ~preprocess_training_data~ add the image filepaths to the table and
 moves the image files to the =data/processed= directory.
 
-
 ** Load training data and create split
 
-The function ~load_training_data~ uses ~tf.keras.utils~ functions ~load_img~ and ~img_to_array~ to load images
-from table, convert to list of Numpy arrays, and return as one large array ~X~.
+The function ~load_training_data~ uses ~tf.keras.utils~ functions ~load_img~ and
+~img_to_array~ to load images from table, convert to list of Numpy arrays, and
+return as one large array ~X~.
 
-Explanation for the shape of the training data `X`. The first dimension is the
+Explanation for the shape of the training data ~X~. The first dimension is the
 number of images. The second and third dimensions are the height and width of
 the image. The fourth dimension is the number of channels. The images are RGBA,
 so there are four channels.
 
-(Thanks, GitHub Copilot.)
+(Thanks, GitHub Copilot comment completion.)
 
 The function ~create_labels~ just returns a DataFrame with one column, is a
 Pokemon a Water Pokemon, yes/no (one-hot).
 
 The "Train test split" cell creates a 0.8/0.2 train-test split of (X,y). Notice
 that the ~SEED~ for the random split was defined as a global constant in the
-beginning.
+beginning, to get the same train-test split upon rerun.
 
 The function "Save train and test data" saves all data objects ~X, X_train,
 X_test, y, y_train, y_test~ as respective file dumps ~X.pckl~, etc., using
-function ~pickle.dump~. This is not usually done, but here done as intermediate
-step towards a DVC pipeline, a DAG, where each stage has (data) inputs and
-outpus, see intro. Also note, that ~pickle~ as serialization solution here is
-just for purpose of an easy demo, not something used in production.
-
+function ~pickle.dump~. This most simple of serializations is not usually done
+in production, but serves as an intermediate step towards a DVC pipeline, a DAG,
+where each stage has (data) inputs and outpus, see intro. Also note, that
+~pickle~ as serialization solution here is just for purpose of an easy demo, not
+something used in production.
 ** Define model and train
 
 The function ~compile_model~ uses [[https://keras.io/api/models/sequential/][Keras Sequential]] class to define a
@@ -539,21 +633,25 @@ As I am doing this on Apple M2, note also this line inside the function.
 optimizer = keras.optimizers.legacy.Adam(learning_rate=0.001) #Adam, RMSprop or SGD
 #+end_src
 
-The resulting model is fairly small, with only ~1k parameters.
+The resulting model is fairly small, with only ~1k parameters. This is on the
+same order as the number of data samples.
 
 The function ~train_estimator~ trains the model, calling ~model.fit~.
 
-As I am still in the "traditional ML" mode, vs. deep learning here, terminology
-wrt train, validate, test data. Note ~validation_data=(X_test, y_test)~. So,
-there is no final "test data" on which the model performance is evaluated, as is
-done in traditional ML with cross-validation. Instead, the model is iteratively
-evaluated on this validation data.
+As I am personally still in the "traditional ML" mode of understanding, vs. the
+deep learning way of doings things in this tutorial, here is a clarification on
+terminology wrt train, validate, test data. Note ~validation_data=(X_test,
+y_test)~. So, there is no final "test data" on which the model performance is
+evaluated, as is done in traditional ML after cross-validation. I guess, this
+CAN be done in deep learning as well, but not really needed. Instead, the model
+is iteratively evaluated on this validation data.
 
 ~MODEL_EPOCHS~ and ~MODEL_BATCH_SIZE~ are also global constants defined in the
 beginning.
 
-The inner function calculating the ~class_weight~ remedies the class imbalance
-wrt Water Pokemons overrepresentation. From Keras Model docs:
+The inner function calculating the ~class_weight~ (for classification tasks)
+remedies the class imbalance wrt Water Pokemons overrepresentation. From Keras
+Model docs:
 
 #+begin_quote
 ~class_weight~: Optional dictionary mapping class indices (integers) to a weight
@@ -565,19 +663,21 @@ under-represented class.
 ** Plot training history and save model
 
 The function ~save_estimator~ plots loss and accuracy of the model during
-training, and saves the model to disk under ~$PROJECT/outputs/model~.
+training, and saves the model to disk under ~$PROJECT/outputs/model~. With
+Keras, we don't need to record those separately, but can access it after
+training from ~estimator.history~.
 
 Note that the [[https://keras.io/api/saving/][Keras save]] method saves the model as a /directory/, not a single
-file. The ~.pb~ file format is [[https://github.com/protocolbuffers/protobuf][protobuf]] format and stores a TensorFlow neural
-network.
+file. The ~.pb~ file format is Google's [[https://github.com/protocolbuffers/protobuf][protobuf]] format. It can store, among
+other things, TensorFlow neural network.
 
 #+begin_src shell :results output
-tree ~/src/forks/dtc-workshop-pycharm/outputs/
+tree ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/outputs/
 #+end_src
 
 #+RESULTS:
 #+begin_example
-/Users/wasmer/src/forks/dtc-workshop-pycharm/outputs/
+~/src/github.com/irratzo/forks/dtc-workshop-pycharm/outputs/
 |-- model
 |   |-- assets
 |   |-- fingerprint.pb
@@ -591,7 +691,6 @@ tree ~/src/forks/dtc-workshop-pycharm/outputs/
 3 directories, 6 files
 #+end_example
 
-
 ** Validation
 
 With "validation" here, model performance, model evaluation is meant, NOT data
@@ -600,7 +699,7 @@ split train/test.)
 The function ~predict_pokemon~ takes the trained model for a spin, predicting
 whether a given Pokemon is Water type or not, and printing its image.
 
-The next cell loads the data model and data from disk, as part of the pipeline
+The next cell loads the model and data from disk, as part of the pipeline
 DAG I/O perspective. From the DVC pipeline DAG I/O perspective, the validation
 stage requires to load the model and the data from disk, as input.
 
@@ -618,6 +717,36 @@ The tutor again emphasized, such a model would not be put into production, it is
 merely a working example for this tutorial.
 
 So, this is the model prototype.
+
+At the end of the notebook run, the ~data~ folder looks like this.
+
+#+begin_src shell :results output
+cd ~/src/github.com/irratzo/forks/dtc-workshop-pycharm
+tree -L 2 data/
+#+end_src
+
+#+RESULTS:
+#+begin_example
+data/
+|-- external
+|   |-- images
+|   |-- pokemon-images.zip
+|   |-- pokemon.zip
+|   `-- stats
+|-- external.dvc
+`-- processed
+    |-- X.pckl
+    |-- X_test.pckl
+    |-- X_train.pckl
+    |-- pokemon
+    |-- pokemon-with-image-paths.csv
+    |-- pokemon.csv
+    |-- y.pckl
+    |-- y_test.pckl
+    `-- y_train.pckl
+
+5 directories, 11 files
+#+end_example
 
 * DONE Setting up DVC and tracking data
 CLOSED: [2023-05-17 Wed 10:21]
@@ -657,11 +786,11 @@ dvc init -f
 dvc add data/external/
 #+end_src
 
-This has two effects. The directory is added to ~.gitignore~, and a file
-~external.dvc~ is created.
+This has two effects. The directory is added to the local ~.gitignore~, and a
+file ~external.dvc~ is created.
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop-pycharm/data/.gitignore
+cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/data/.gitignore
 #+end_src
 
 #+RESULTS:
@@ -673,7 +802,7 @@ cat ~/src/forks/dtc-workshop-pycharm/data/.gitignore
 :   path: external
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop-pycharm/data/external.dvc
+cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/data/external.dvc
 #+end_src
 
 #+RESULTS:
@@ -689,7 +818,7 @@ not evident when starting with the tutorial repo, cause it already has a
 ~.dvc/~, so DVC was already initialized.
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop-pycharm/.dvc/.gitignore
+cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/.dvc/.gitignore
 #+end_src
 
 #+RESULTS:
@@ -698,13 +827,13 @@ cat ~/src/forks/dtc-workshop-pycharm/.dvc/.gitignore
 : /cache
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop-pycharm/.dvc/config
+cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/.dvc/config
 #+end_src
 
 #+RESULTS:
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop-pycharm/.dvcignore
+cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/.dvcignore
 #+end_src
 
 #+RESULTS:
@@ -718,7 +847,7 @@ cat ~/src/forks/dtc-workshop-pycharm/.dvcignore
   - Add script / notebook cell to download [[https://molmod.ugent.be/deltacodesdft][deltacodesdft]] structures
   - Add as ~data/external~
 - jij-prediction.
-  - add AiiDA-exported data as ~data/external~.
+  - add AiiDA-exported data as ~data/external~ or ~data/input~.
 ** Setting up DVC and tracking data - git commit
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=33m22s][33:22]].
@@ -746,7 +875,8 @@ git add notebooks/ ; git commit -m "notebook state after tutorial section 'run t
 git push origin BRANCH
 #+end_src
 
-Now, can do the DVC init step again, as if it were the first time. We'll add the associated metadata files to Git in the same go.
+Now, can do the DVC init step again, as if it were the first time. We'll add the
+associated metadata files to Git in the same go.
 
 #+begin_src shell
 # init DVC
@@ -770,9 +900,10 @@ Video tutorial uses [[https://dvc.org/doc/user-guide/data-management/remote-stor
 use self-hosted SSH.
 
 - DVC allows [[https://dvc.org/doc/user-guide/data-management/remote-storage#self-hosted--on-premises][self-hosted remote storage]]: SSH, HDFS, HTTP, WebDAV.
-- Try to set this up for my projects to sunc to ~/Data/division/iff-user~ via SSH.
+- Try to set this up for my projects to sync to ~/Data/division/iff-user~ via
+  SSH. (Replace ~iff-user~ placeholder with real username.)
 
-Okay, on SSH remote ~ifflinux~, set up remote directory
+Okay, on SSH remote ~ifflinux~, have now set up remote directory
 =/Data/division/iff-user/dvc/dtc-workshop= for this project. Try adding that now
 following the [[https://dvc.org/doc/user-guide/data-management/remote-storage/ssh][DVC docs - SSH]] page.
 
@@ -785,16 +916,21 @@ sftp iff-user@ifflinux.iff.kfa-juelich.de
 exit
 #+end_src
 
-Now, on branch ~pycharm~.
+Now, on branch ~pycharm~. Add the remote and push the DVC commits.
 
 #+begin_src shell
+# # add remote to repo
 # dvc remote add -d myremote ssh://user@example.com:2222/path
 dvc remote add -d iff-main ssh://iff-user@ifflinux.iff.kfa-juelich.de/Data/division/iff-user/dvc/dtc-workshop
+
+# # add SSH key for SSH remote login
 # dvc remote modify --local myremote keyfile /path/to/keyfile
 dvc remote modify --local iff-main keyfile ~/.ssh/id_rsa
-# push data/external to remote, as initial test
+
+# # push commits (here, data/external) to remote, as initial test
 dvc push
-# if successful, commit config change
+
+# # if successful, commit config change
 git add .dvc ; git commit -m "dvc remote add -d iff-main (remote repo for project data)"
 git push origin pycharm
 #+end_src
@@ -802,7 +938,7 @@ git push origin pycharm
 The ~dvc remote add~ updated the DVC config.
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop-pycharm/.dvc/config
+cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/.dvc/config
 #+end_src
 
 #+RESULTS:
@@ -814,7 +950,9 @@ cat ~/src/forks/dtc-workshop-pycharm/.dvc/config
 After the ~dvc push~, the remote storage is populated. But not with the
 identical content of ~data/external~, but instead hash-based folders ~00/~ to
 ~ff/~, with hash-based files in them, like ~ff/e39770f78253994bf4a4db7e8d6d7b~.
-Looks a lot like AiiDA remote (working directory) file storage scheme. These
+Looks a lot like the old AiiDA remote (working directory) file storage scheme
+(which they replaced with object storage cause this method produced too many
+inodes ... doesn't DVC potentially cause the same problem here?). These
 correspond to the file hashes stored in the repo's ~.dvc/cache/~.
 
 Now, the interesting question is, how to sync that with the branch ~vscode-dvc~?
@@ -825,20 +963,29 @@ do a ~dvc pull~ instead and see if the data gets downloaded.
 On branch ~vscode-dvc~.
 
 #+begin_src shell
+# (all except third command same as above in other repo)
+
+# # add remote to repo
 # dvc remote add -d myremote ssh://user@example.com:2222/path
 dvc remote add -d iff-main ssh://iff-user@ifflinux.iff.kfa-juelich.de/Data/division/iff-user/dvc/dtc-workshop
+
+# # add SSH key for SSH remote login
 # dvc remote modify --local myremote keyfile /path/to/keyfile
 dvc remote modify --local iff-main keyfile ~/.ssh/id_rsa
+
 # remove (or mv backup) local data/external and replace with the one from remote
 rm -rf data/external
 dvc pull
+
 # if successful, commit config change
 git add .dvc ; git commit -m "dvc remote add -d iff-main (remote repo for project data)"
 git push origin vscode-dvc
 #+end_src
 
 It worked! ~dvc pull~ restored the original ~data/external~ contents from the
-remote.
+remote. Note here that this also worked because the DVC remote does not have any
+branches, or we at least have not specified them. So, differently from the code
+remote repo, all code branches see the same remote DVC data.
 
 *Application to personal projects.*
 
@@ -858,10 +1005,11 @@ Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=41m37s]
 
 Now we are finally set up to start building a [[https://dvc.org/doc/user-guide/pipelines#pipelines][DVC pipeline]].
 
-Create ~./params.yaml~, same content as in tutorial repo README section. Similar to parameters in notebook.
+Create ~./params.yaml~, same content as in tutorial repo README section. Similar
+to parameters in notebook.
 
 #+begin_src shell :results output
-cat ~/src/forks/dtc-workshop-pycharm/params.yaml
+cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/params.yaml
 #+end_src
 
 #+RESULTS:
@@ -908,11 +1056,11 @@ cp -r src ../dtc-workshop-vscode-dvc
 #+end_src
 
 #+begin_src shell :results output
-tree -I "*.pyc" -I "__pycache__" ~/src/forks/dtc-workshop-pycharm/src
+tree -I "*.pyc" -I "__pycache__" ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/src
 #+end_src
 
 #+RESULTS:
-: /Users/wasmer/src/forks/dtc-workshop-pycharm/src
+: ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/src
 : |-- data_load.py
 : |-- data_preprocess.py
 : |-- evaluate.py
@@ -926,10 +1074,10 @@ tree -I "*.pyc" -I "__pycache__" ~/src/forks/dtc-workshop-pycharm/src
 
 Some notes on how the tutor turned the notebook cells into modules. These can
 serve as *best practices* / *guideline* for manually turning an ML training
-notebook pipeline into Python modules, and indeed, any kind of computational
-task.
+notebook and indeed, any kind of computational pipeline, into Python modules.
 
-- Each module represents one pipeline stage now.
+- Each module represents one pipeline stage now, with file consecutive input and
+  output (stage X output is input for stage Y).
 - Each module is script-enabled with an ~argparse~ CLI, by having a ~__main__~
   section at the end that loads the ~params.yaml~. Then, global constants needed
   for this stage are read from the ~params.yaml~.
@@ -951,9 +1099,10 @@ task.
       SOURCE_DIRECTORY: str = params['data_preprocess']['source_directory']
   #+end_src
 
-- The only exception is the absolute directory of the project root. Since this
-  is user-specific, this is instead in ~utls.find_project_root~. It goes through
-  parent and stops once it has found one which contains a ~.git/~.
+- The only non-hard-coded relative project directory / location is the absolute
+  directory of the project root itself. Since this is user-specific, this is
+  instead in function ~utils.find_project_root~. It goes up through parent
+  folders and stops once it has found one which contains a ~.git/~.
 - Some notebook cells get turned into module functions, others are part of the
   module's ~__main__~ section, which also calls the functions.
 - In ~data_preprocessing~ main section, preprocessing functions are called on
@@ -968,7 +1117,9 @@ task.
 
 ** Turn notebook into to Python modules - Run pipeline
 
-With the ~src~ package finished, the same pototype pipeline from the notebook can now be run from the command line.
+With the ~src~ package finished, the same pototype pipeline from the notebook
+can now be run from the command line instead by running all notebook cells (and
+hope that they are still correct for that).
 
 #+begin_src shell
 python src/data_preprocess.py --params params.yaml
@@ -976,6 +1127,10 @@ python src/data_load.py --params params.yaml
 python src/train.py --params params.yaml
 python src/evaluate.py --params params.yaml
 #+end_src
+
+** Intermezzo - Enable DVC shell tab completion
+
+Followed [[https://dvc.org/doc/install/completion?tab=Zsh][instructions for zsh]]. Worked.
 
 ** Turn notebook into to Python modules - Debugging
 
@@ -1008,4 +1163,48 @@ Second change. Run ~train.py~ fails when calling ~model.fit~ with error message.
 optimizer = keras.optimizers.legacy.Adam(learning_rate=MODEL_LEARNING_RATE)  # Adam, RMSprop or SGD
 #+end_example
 
-Now figure out how to PyCharm debug script file with ~--params param.yaml~ arguments.
+Now figure out how to PyCharm debug script file with ~--params param.yaml~ arguments in the IDEs.
+
+~src/train.py --params params.yaml~ error-2023-06-18-a.
+
+#+begin_example
+Model: "sequential"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #
+=================================================================
+ conv2d (Conv2D)             (None, 471, 471, 4)       404
+
+ max_pooling2d (MaxPooling2  (None, 235, 235, 4)       0
+ D)
+
+ dropout (Dropout)           (None, 235, 235, 4)       0
+
+ conv2d_1 (Conv2D)           (None, 231, 231, 4)       404
+
+ max_pooling2d_1 (MaxPoolin  (None, 115, 115, 4)       0
+ g2D)
+
+ dense (Dense)               (None, 115, 115, 8)       40
+
+ dropout_1 (Dropout)         (None, 115, 115, 8)       0
+
+ flatten (Flatten)           (None, 105800)            0
+
+ dense_1 (Dense)             (None, 1)                 105801
+
+=================================================================
+Total params: 106649 (416.60 KB)
+Trainable params: 106649 (416.60 KB)
+Non-trainable params: 0 (0.00 Byte)
+_________________________________________________________________
+Traceback (most recent call last):
+  File "/Users/wasmer/src/github.com/irratzo/forks/dtc-workshop-pycharm/src/train.py", line 120, in <module>
+    estimator = train_estimator(model)
+  File "/Users/wasmer/src/github.com/irratzo/forks/dtc-workshop-pycharm/src/train.py", line 66, in train_estimator
+    estimator = model.fit(X_train, y_train,
+  File "/Users/wasmer/src/github.com/irratzo/forks/dtc-workshop-pycharm/venv/lib/python3.9/site-packages/keras/src/utils/traceback_utils.py", line 70, in error_handler
+    raise e.with_traceback(filtered_tb) from None
+  File "/Users/wasmer/src/github.com/irratzo/forks/dtc-workshop-pycharm/venv/lib/python3.9/site-packages/tensorflow/python/framework/op_def_library.py", line 56, in _SatisfiesTypeConstraint
+    raise TypeError(
+TypeError: Value passed to parameter 'x' has DataType bool not in list of allowed values: bfloat16, float16, float32, float64, int8, int16, int32, int64, complex64, complex128
+#+end_example
