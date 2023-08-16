@@ -140,7 +140,9 @@ For the tutorial.
 
 - [[https://iterative.ai/blog/jupyter-notebook-dvc-pipeline/][Tutorial blog article]]
 - [[https://github.com/RCdeWit/dtc-workshop][Tutorial GitHub repository]]
-- [[https://www.youtube.com/watch?v=6x6GwtNeYdI][Tutorial YouTube video recording]]
+- [[https://www.youtube.com/watch?v=6x6GwtNeYdI][Tutorial YouTube video recording]]. Title "GitOps for ML - How to convert
+  machine learning notebooks to reproducible DVC pipelines", date
+  <2023-04-04 Tue>.
 - [[https://dvc.org/doc][DVC docs]]
 - [[https://marketplace.visualstudio.com/items?itemName=Iterative.dvc#what-you-get][DVC VSCode extension]]. "The first experiment tracking interface for an IDE".
   - [[https://github.com/iterative/vscode-dvc#what-you-get][What you get]]
@@ -152,10 +154,14 @@ For the tutorial.
 
 *<2023-06-06 Tue> Update*. TODO.
 
-- [[https://www.youtube.com/watch?v=3-DG4WS5Ikk][Tutorial Follow-up YouTube video recording]]
+- [[https://www.youtube.com/watch?v=3-DG4WS5Ikk][Tutorial Follow-up YouTube video recording]]. Title "Becoming a Pokémon Master
+  with DVC: Reproducible Machine Learning Experiments", date <2023-06-06 Tue>.
 
 Beyond the tutorial.
 
+- Mlflow follow-up tutorials
+  - [[https://www.youtube.com/watch?v=JmCfkpGOE8c][YouTube - DagsHub - MLflow Experiment Tracking Webinar]]. Date <2023-06-13 Tue>.
+  - [[https://www.youtube.com/watch?v=K2i-9Gn4XNY][YouTube - DagsHub - MLflow Model Registry Webinar]]. Date <2023-04-06 Thu>.
 - iterative.ai Blog
   - [[https://iterative.ai/blog/exp-tracking-dvc-python/?tab=General-Python-API][Instant Experiment Tracking: Just Add DVC!]]
     - Quick-start guide on migrating an existing project, using [[https://dvc.org/doc/dvclive][DVCLive]].
@@ -205,7 +211,7 @@ point to sth else in the cache. For instance, some images in the training data
 folder were rmoved, and some added. This avoids data duplication over
 incremental changes.
 
-*DVC pipelines.*
+*DVC pipelines.* Timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=8m45s][08:45]].
 
 DVC pipelines are directed acyclic graphs (DAGs) of connected steps or stages.
 For instance, data preprocessing, loading, model training, performance
@@ -241,13 +247,15 @@ I created [[https://github.com/Irratzo/dtc-workshop][a fork]] of the repository 
 
 I want to evaluate the [[https://marketplace.visualstudio.com/items?itemName=Iterative.dvc][VSCode DVC extension]]. So I do the tutorial two times
 simultaneously, once in VSCode with the DVC extension, and once in PyCharm
-without. I separate those into the two fork repo branches ~vscode-dvc~ and
-~pycharm~. These notes are for now only in the ~main~ branch under =notes/=.
+without. I separate those into the two fork repo branches [[https://github.com/Irratzo/dtc-workshop/tree/vscode-dvc][~vscode-dvc~]] and
+[[https://github.com/Irratzo/dtc-workshop/tree/pycharm][~pycharm~]]. These notes are for now only in the ~main~ branch under =notes/=.
 
 Local file repo locations:
 
-- [[file:~/src/github.com/irratzo/forks/dtc-workshop/][dtc-workshop]]. For work on branch ~vscode-dvc~.
+- [[file:~/src/github.com/irratzo/forks/dtc-workshop-vscode-dvc][dtc-workshop-vscode-dvc]]. For work on branch ~vscode-dvc~.
 - [[file:~/src/github.com/irratzo/forks/dtc-workshop-pycharm/][dtc-workshop-pycharm]]. For work on branch ~pycharm~.
+- [[file:~/src/github.com/irratzo/forks/dtc-workshop-solution/][dtc-workshop-solution]]. Solution.
+
 * DONE Download the data
 CLOSED: [2023-05-12 Fri 19:26]
 
@@ -296,8 +304,10 @@ pickle-mixin==1.0.2
 I deviate from that.
 
 In both branches, I replace the M1 tensorflow versions with =tensorflow=. I
-replace =notebook= with =jupyterlab=, cause it's a superset and I prefer to have
-it.
+replace =notebook= with =jupyterlab=, cause it is the sucessor and I prefer to
+have it. Update: ADD =jupyterlab= to =notebook= because your IDE (eg PyCharm)
+might require =notebook= in the environment. Both are developed in conjunction,
+but are completely separate.
 
 In branch ~vscode-dvc~, VSCode extension DVC version v08.11 complained that
 extension is not compatible with ~dvc[all]==2.44.0~ and requires at least
@@ -341,8 +351,9 @@ the tutorial video and leaving everything else as is produced a patchy
 environment. So I also went with the constraintless reqs version here. I could
 enforce ~dvc[all]==2.56.0~ here since not bound by DVC extension. But better
 keep needed adjustments consistent between both branches, so same env. As for
-the =pickle-mixin=, I can always commit a freeze env later, if DVC does not
-already support on its own.
+the =pickle-mixin=, I can always commit a freeze env later (pickle serializes
+Python objects; deserialization is only guaranteed to work with the exact same
+package versions), if DVC does not already support on its own.
 
 #+begin_src shell :results output
 cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/requirements.txt
@@ -368,6 +379,8 @@ In both branches, I rename the old requirements file to
 =requirements-original.txt= and the new one to =requirements.txt=. Both IDEs by
 default install env fixed on this filename, so this swap makes that easier.
 
+*How to create a Python environment from requirements.txt with IDEs VSCode, PyCharm*.
+
 Create venv/pip env from requirements file in PyCharm. Note that PyCharm
 automatically selects the file ~requirements.txt~ for this. Project Settings >
 Add interpreter > PyCharm creates the env in the repo folder =./venv=. Create,
@@ -386,7 +399,8 @@ Now I freeze the installed environments.
 In PyCharm, Tools > Sync Python Environments did not work for me.
 
 So, in both branches / IDEs, I did ~pip freeze > requirements.txt~, hand-picked
-out above libraries, and overwrote =requirements.txt= with that again.
+out above libraries (ie, delete all others from the file), and overwrote
+=requirements.txt= with that again.
 
 (While doing it also found out, that again, PyCharm had not installed many of
 the reqs in the env, even without version constraints. So, next time do it with
@@ -439,6 +453,10 @@ requirements file without version constraints DOES produce a working TensorFlow
 installation. So, I did that instead, removed the environments created by the
 two respective IDEs, and copied the resulting environment folder into the
 respective VSCode / PyCharm projects.
+
+Update: pip/venv environments are tied to their locations. The paths are stored
+in the venv's config files. When moving or copy-pasting them, update those
+references by hand to the new location. Google how to do that.
 
 #+begin_src shell
 rm -rf ~/src/github.com/irratzo/forks/dtc-workshop/.venv
@@ -497,12 +515,12 @@ while. Turns out that
 - 2) The ~venv/bin/python~ was missing. When activated (after fixing 1)) used
   ~/usr/local/bin/python~, instead. I believe now that this is an issue with my
   conda / mamba / micromamba ~base~ environment. Details see [[file:~/Desktop/Coding/Python/PythonConfig-Mac_Notes.org::*2023-06-17 base environment may be damaged][here]] (local file
-  link).
+  link; see section "2023-06-17 micromamba base environment may be damaged").
 
 So, removed both envs again. Recreate only one at current location. Use this one
 env for both IDEs / project branches. Note that currently on MY system, I MUST
 write ~python3~ instead of ~python~ when creating the env cause latter is Python
-2 and creation would fail with it.
+2 and creation would fail with it. In any case, just check version before.
 
 To repeat: From now on, *there is only one env*, not two.
 
@@ -586,13 +604,31 @@ ls ~/src/github.com/irratzo/forks/dtc-workshop/data/external/images | wc -l
 "Not really important to understand the content of these cells before we replace
 them later on."
 
-The function ~preprocess_training_labels~ turns the original table into one
-where you get a one-hot encording for every of the two types a Pokemon posesses.
+Functions / cells (code snippets) in this section, in order.
+
+| Function                     |
+|------------------------------|
+| ~preprocess_training_labels~ |
+| ~load_training_data~         |
+
+The function ~preprocess_training_labels~ adds a one-hot encording to the
+original table for each of the two types that a Pokemon posesses. Eg for row 1,
+Pokemon No. 1, type1=grass, type2=poison turns into isFire=0, isGrass=1, ...,
+isGround=0.
 
 The function ~preprocess_training_data~ add the image filepaths to the table and
 moves the image files to the =data/processed= directory.
 
 ** Load training data and create split
+
+Functions / cells (code snippets) in this section, in order.
+
+| Function                        |
+|---------------------------------|
+| ~load_training_data~            |
+| ~create_labels~                 |
+| ~train_test_split~              |
+| Cell "Save train and test data" |
 
 The function ~load_training_data~ uses ~tf.keras.utils~ functions ~load_img~ and
 ~img_to_array~ to load images from table, convert to list of Numpy arrays, and
@@ -614,9 +650,9 @@ beginning, to get the same train-test split upon rerun.
 
 The function "Save train and test data" saves all data objects ~X, X_train,
 X_test, y, y_train, y_test~ as respective file dumps ~X.pckl~, etc., using
-function ~pickle.dump~. This most simple of serializations is not usually done
-in production, but serves as an intermediate step towards a DVC pipeline, a DAG,
-where each stage has (data) inputs and outpus, see intro. Also note, that
+function ~pickle.dump~. This most simple method of serialization is not usually
+done in production, but serves as an intermediate step towards a DVC pipeline, a
+DAG, where each stage has (data) inputs and outpus, see intro. Also note, that
 ~pickle~ as serialization solution here is just for purpose of an easy demo, not
 something used in production.
 ** Define model and train
