@@ -94,6 +94,9 @@
 #+ARCHIVE: dtc-workshop-notes-wasmer_archive.org::
 
 * Description
+:PROPERTIES:
+:CUSTOM_ID: h-3B113F99-7977-4290-B11D-3817FEF8074B
+:END:
 
 Log of my workthrough of the [[https://iterative.ai/blog/jupyter-notebook-dvc-pipeline/][DVC tutorial]] "GitOps for ML: Converting Notebooks
 to Reproducible Pipelines".
@@ -106,7 +109,10 @@ projects".
 - [[https://iffgit.fz-juelich.de/phd-project-wasmer/projects/jij-prediction][jij-prediction]] > notebook "model training"
   - at time of writing, this notebook is stored here [[https://iffgit.fz-juelich.de/phd-project-wasmer/teaching/sisclab2022-project6-git/-/blob/skm23/notebooks/work-package-2/johannes/skm23/skm23c-model-training.ipynb][model training]], but will be
     moved to jij-prediction later.
-* Table of Contents                                                     :TOC:
+* Table of Contents                                                     :TOC_2_gh:noexport:
+:PROPERTIES:
+:CUSTOM_ID: h-A85C6821-B59A-4F6E-B710-D106E4ED2218
+:END:
 - [[#description][Description]]
 - [[#useful-links][Useful links]]
 - [[#intro-and-motivating-example][Intro and motivating example]]
@@ -115,6 +121,7 @@ projects".
 - [[#done-install-python-environment][DONE Install Python environment]]
   - [[#done-install-python-environment---part-1][DONE Install Python environment - Part 1]]
   - [[#done-install-python-environment---part-2][DONE Install Python environment - Part 2]]
+  - [[#install-python-environment---part-3][Install Python environment - Part 3]]
 - [[#done-run-the-notebook][DONE Run the notebook]]
   - [[#notebook-intro][Notebook intro]]
   - [[#data-preprocessing][Data preprocessing]]
@@ -135,10 +142,14 @@ projects".
   - [[#turn-notebook-into-to-python-modules---debugging][Turn notebook into to Python modules - Debugging]]
 
 * Useful links
+:PROPERTIES:
+:CUSTOM_ID: h-D60E0825-57F2-48F5-8BA0-A855AE37A1B9
+:END:
 
 For the tutorial.
 
-- [[https://iterative.ai/blog/jupyter-notebook-dvc-pipeline/][Tutorial blog article]]
+- [[https://iterative.ai/blog/jupyter-notebook-dvc-pipeline/][Tutorial blog article]], 2022. Note that this differs somewhat from the later
+  YouTube tutorial below. This workthrough follows the latter.
 - [[https://github.com/RCdeWit/dtc-workshop][Tutorial GitHub repository]]
 - [[https://www.youtube.com/watch?v=6x6GwtNeYdI][Tutorial YouTube video recording]]. Title "GitOps for ML - How to convert
   machine learning notebooks to reproducible DVC pipelines", date
@@ -154,19 +165,34 @@ For the tutorial.
 
 *<2023-06-06 Tue> Update*. TODO.
 
-- [[https://www.youtube.com/watch?v=3-DG4WS5Ikk][Tutorial Follow-up YouTube video recording]]. Title "Becoming a Pokémon Master
+- [[https://www.youtube.com/watch?v=3-DG4WS5Ikk][Tutorial YouTube video recording]]. Title "Becoming a Pokémon Master
   with DVC: Reproducible Machine Learning Experiments", date <2023-06-06 Tue>.
 
 Beyond the tutorial.
 
-- Mlflow follow-up tutorials
-  - [[https://www.youtube.com/watch?v=JmCfkpGOE8c][YouTube - DagsHub - MLflow Experiment Tracking Webinar]]. Date <2023-06-13 Tue>.
-  - [[https://www.youtube.com/watch?v=K2i-9Gn4XNY][YouTube - DagsHub - MLflow Model Registry Webinar]]. Date <2023-04-06 Thu>.
-- iterative.ai Blog
+- More resources by Iterative AI.
+  - [[https://github.com/iterative/awesome-iterative-projects][Awesome Iterative Projects]]. GitHub awesome list.
+  - [[https://www.youtube.com/watch?v=7ZgBydEPHwA][Tutorial YouTube video recording]]. Title "ZnTrack: DVC Machine Learning
+    Pipelines in Python and Jupyter Notebooks", date <2023-08-20 Sun>.
+    - ZnTrack is a tool built on top of DVC to make DVC easier to use.
+    - [[https://github.com/PythonFZ/DVCExample/tree/mnist_sign_language][example repo]], [[https://onedrive.live.com/view.aspx?resid=7FED1240F77A0670!2402&ithint=file%2cpptx&authkey=!ALoB14yh4e7i80w][slides]], [[https://notebooks.gesis.org/binder/jupyter/user/pythonfz-dvcexample-vjjh1ft8/doc/tree/Workflow.ipynb][Binder notebook]], [[https://github.com/zincware/ZnTrack][ZnTrack repo]].
   - [[https://iterative.ai/blog/exp-tracking-dvc-python/?tab=General-Python-API][Instant Experiment Tracking: Just Add DVC!]]
     - Quick-start guide on migrating an existing project, using [[https://dvc.org/doc/dvclive][DVCLive]].
-- [[https://dagshub.com/khuyentran1401/Machine-learning-pipeline][khuyentran1401/machine-learning-pipeline]]. Tutorial combining MLFlow, Hydra and DVC.
+
+- DagsHub tutorials. DagsHub calls itself the GitHub for data. The platform
+  integrates DVC, MLflow, etc. in one platform and wants to make their usage
+  easier.
+  - Mlflow follow-up tutorials.
+    - [[https://www.youtube.com/watch?v=JmCfkpGOE8c][YouTube - DagsHub - MLflow Experiment Tracking Webinar]]. Date <2023-06-13 Tue>.
+    - [[https://www.youtube.com/watch?v=K2i-9Gn4XNY][YouTube - DagsHub - MLflow Model Registry Webinar]]. Date <2023-04-06 Thu>.
+  - [[https://dagshub.com/khuyentran1401/Machine-learning-pipeline][khuyentran1401/machine-learning-pipeline]]. Tutorial combining MLFlow, Hydra and DVC.
+
+- Other resources.
+  - [[https://iffmd.fz-juelich.de/cBVSp52ySMaMnZ4NkAq-MA?view][Workshop Get Started With MLOps]], presented at HDS-LEE Retreat 2023. See DVC.
 * Intro and motivating example
+:PROPERTIES:
+:CUSTOM_ID: h-3EB0EF40-01EA-41B4-851A-7A0FBB4A90CB
+:END:
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=2m13s][02:13]].
 
@@ -240,6 +266,9 @@ Jupyter notebook into such a Git+DVC pipeline.
 
 * DONE Fork the tutorial repo
 CLOSED: [2023-05-12 Fri 19:26]
+:PROPERTIES:
+:CUSTOM_ID: h-201EAD2C-B987-4802-96C1-8C6C319257C1
+:END:
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=12m8s][12:08]].
 
@@ -258,6 +287,9 @@ Local file repo locations:
 
 * DONE Download the data
 CLOSED: [2023-05-12 Fri 19:26]
+:PROPERTIES:
+:CUSTOM_ID: h-633EB921-DCE8-4544-84B7-DBFD868CFC60
+:END:
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=12m8s][12:08]].
 
@@ -265,11 +297,17 @@ Downloaded the training data to repo folder, =./data/external=, unpacked the two
 zips into =pokemon/= and =pokemon-images/=.
 * DONE Install Python environment
 CLOSED: [2023-06-17 Sat 13:46]
+:PROPERTIES:
+:CUSTOM_ID: h-4622B104-D4EF-4984-B9EC-9BBF56B84F25
+:END:
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=15m50s][15:50]].
 
 ** DONE Install Python environment - Part 1
 CLOSED: [2023-05-16 Tue 15:01]
+:PROPERTIES:
+:CUSTOM_ID: h-ADF231F6-6755-486C-82B4-C53B969BAF5D
+:END:
 
 This part: Creating a ~requirements.txt~ file that works for my hardware, Apple
 MacBook Pro M2.
@@ -501,6 +539,9 @@ first.
 
 ** DONE Install Python environment - Part 2
 CLOSED: [2023-06-17 Sat 13:45]
+:PROPERTIES:
+:CUSTOM_ID: h-A1BB891F-FBB9-4F63-BE51-7D22BB0D74DC
+:END:
 
 This part: Recreating by hand and updating both environments.
 
@@ -509,18 +550,20 @@ initially, they did not work anymore after returning to this project after some
 while. Turns out that
 
 - 1) pip/venv envs are hardcoded to their creation location (in
-  ~venv/bin/activate*~ scripts, variable =VIRTUAL_ENV=). So moving them around,
+  =venv/bin/activate*= scripts, variable ~VIRTUAL_ENV~). So moving them around,
   like I did in part 1, will make them unusable, initially. This can be easily
-  fixed, however, by replacing the =VIRTUAL_ENV= value with the new location.
-- 2) The ~venv/bin/python~ was missing. When activated (after fixing 1)) used
-  ~/usr/local/bin/python~, instead. I believe now that this is an issue with my
-  conda / mamba / micromamba ~base~ environment. Details see [[file:~/Desktop/Coding/Python/PythonConfig-Mac_Notes.org::*2023-06-17 base environment may be damaged][here]] (local file
-  link; see section "2023-06-17 micromamba base environment may be damaged").
+  fixed, however, by replacing the ~VIRTUAL_ENV~ value with the new location.
+- 2) The =venv/bin/python= was missing. When activated (after fixing 1)), they
+  used the system Python =/usr/local/bin/python=, instead. I believe now that
+  this is an issue with my conda / mamba / micromamba ~base~ environment.
+  Details see [[file:~/Desktop/Coding/Python/PythonConfig-Mac_Notes.org::*2023-06-17 base environment may be damaged][here]] (local file link; see section "2023-06-17 micromamba base
+  environment may be damaged").
 
-So, removed both envs again. Recreate only one at current location. Use this one
-env for both IDEs / project branches. Note that currently on MY system, I MUST
-write ~python3~ instead of ~python~ when creating the env cause latter is Python
-2 and creation would fail with it. In any case, just check version before.
+So, removed both envs again. Recreate only one at current local project
+location. Use this one env for both IDEs / project branches. Note that currently
+on MY system, I MUST write ~python3~ instead of ~python~ when creating the env
+cause latter is Python 2 and creation would fail with it. In any case, just
+check version before.
 
 To repeat: From now on, *there is only one env*, not two.
 
@@ -575,10 +618,26 @@ scikit-learn
 isort
 pickle-mixin
 #+end_example
+** Install Python environment - Part 3
+:PROPERTIES:
+:CUSTOM_ID: h-BC3BBDC3-5D84-439A-BE71-2CFCD5ACD5AE
+:END:
+Date <2023-11-14 Tue>.
 
+Returned to this project on <2023-11-14 Tue> after a second long hiatus after
+last work on it since <2023-06-18 Sun>. Got to check now that the Python
+environment is still there, and that they still work. Then, check on the IDEs,
+VSCode and PyCharm, and whether the envs work with them. This includes checking
+compatibility with the version of the VSCode DVC extension.
 * DONE Run the notebook
 CLOSED: [2023-05-16 Tue 22:54]
+:PROPERTIES:
+:CUSTOM_ID: h-344A9323-DF4C-4126-919A-B0D85FBAF134
+:END:
 ** Notebook intro
+:PROPERTIES:
+:CUSTOM_ID: h-EB2D69FE-671E-4DCF-8D0F-08A91D08F9C2
+:END:
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=21m38s][21:38]].
 
 Run the notebook ~pokemon_classifier.ipynb~ and explain what it does.
@@ -600,6 +659,9 @@ ls ~/src/github.com/irratzo/forks/dtc-workshop/data/external/images | wc -l
 :      905
 
 ** Data preprocessing
+:PROPERTIES:
+:CUSTOM_ID: h-28B68A92-46D7-40B2-AD83-A9368C781680
+:END:
 
 "Not really important to understand the content of these cells before we replace
 them later on."
@@ -620,6 +682,9 @@ The function ~preprocess_training_data~ add the image filepaths to the table and
 moves the image files to the =data/processed= directory.
 
 ** Load training data and create split
+:PROPERTIES:
+:CUSTOM_ID: h-568A779F-3013-483B-A29F-5D8710F04291
+:END:
 
 Functions / cells (code snippets) in this section, in order.
 
@@ -656,6 +721,9 @@ DAG, where each stage has (data) inputs and outpus, see intro. Also note, that
 ~pickle~ as serialization solution here is just for purpose of an easy demo, not
 something used in production.
 ** Define model and train
+:PROPERTIES:
+:CUSTOM_ID: h-5F64A753-138E-464E-89CC-A67DF8290603
+:END:
 
 The function ~compile_model~ uses [[https://keras.io/api/models/sequential/][Keras Sequential]] class to define a
 convolutional neural network (CNN) for the given image dimensions in the
@@ -697,6 +765,9 @@ under-represented class.
 #+end_quote
 
 ** Plot training history and save model
+:PROPERTIES:
+:CUSTOM_ID: h-2696EE8D-5E77-46CF-88EB-EA99C46791F9
+:END:
 
 The function ~save_estimator~ plots loss and accuracy of the model during
 training, and saves the model to disk under ~$PROJECT/outputs/model~. With
@@ -728,6 +799,9 @@ tree ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/outputs/
 #+end_example
 
 ** Validation
+:PROPERTIES:
+:CUSTOM_ID: h-35A75BA7-5A0B-416B-9724-1C5F20498992
+:END:
 
 With "validation" here, model performance, model evaluation is meant, NOT data
 split train/test.)
@@ -786,7 +860,13 @@ data/
 
 * DONE Setting up DVC and tracking data
 CLOSED: [2023-05-17 Wed 10:21]
+:PROPERTIES:
+:CUSTOM_ID: h-5647513C-C42B-45A2-A974-90F10E24BD6C
+:END:
 ** Setting up DVC and tracking data - dvc init
+:PROPERTIES:
+:CUSTOM_ID: h-D43969B6-78FF-45E5-8DB2-636BBDFCC1C6
+:END:
 
 Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#setting-up-dvc-and-tracking-data][section]].
 
@@ -885,6 +965,9 @@ cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/.dvcignore
 - jij-prediction.
   - add AiiDA-exported data as ~data/external~ or ~data/input~.
 ** Setting up DVC and tracking data - git commit
+:PROPERTIES:
+:CUSTOM_ID: h-AFEC4985-9CB5-4DED-8419-6E061FAB3C76
+:END:
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=33m22s][33:22]].
 
@@ -923,6 +1006,9 @@ dvc add data/external/; git add data/external.dvc data/.gitignore; git commit -m
 #+end_src
 
 ** Setting up DVC and tracking data - Add a remote for data
+:PROPERTIES:
+:CUSTOM_ID: h-BA6D6140-CF9E-47D6-A255-CC97C125EABB
+:END:
 
 Tutorial video timestamp [[https://www.youtube.com/watch?v=6x6GwtNeYdI&t=35m0s][35:00]].
 
@@ -959,6 +1045,12 @@ Now, on branch ~pycharm~. Add the remote and push the DVC commits.
 # dvc remote add -d myremote ssh://user@example.com:2222/path
 dvc remote add -d iff-main ssh://iff-user@ifflinux.iff.kfa-juelich.de/Data/division/iff-user/dvc/dtc-workshop
 
+# Actually, later I changed the remote storage location again, to reflect the
+# folder structure in my ~/src/ folder, which in turn reflects all my projects'
+# source code remote locations. Now, the folder trees of ~/src and ~/dvc/ can
+# be identical, avoiding confusion.
+dvc remote modify iff-main url ssh://wasmer@ifflinux.iff.kfa-juelich.de/Data/ias-1/wasmer/dvc/github.com/irratzo/forks/dtc-workshop
+
 # # add SSH key for SSH remote login
 # dvc remote modify --local myremote keyfile /path/to/keyfile
 dvc remote modify --local iff-main keyfile ~/.ssh/id_rsa
@@ -981,7 +1073,7 @@ cat ~/src/github.com/irratzo/forks/dtc-workshop-pycharm/.dvc/config
 : [core]
 :     remote = iff-main
 : ['remote "iff-main"']
-:     url = ssh://iff-user@ifflinux.iff.kfa-juelich.de/Data/division/iff-user/dvc/dtc-workshop
+:     url = ssh://wasmer@ifflinux.iff.kfa-juelich.de/Data/ias-1/wasmer/dvc/github.com/irratzo/forks/dtc-workshop
 
 After the ~dvc push~, the remote storage is populated. But not with the
 identical content of ~data/external~, but instead hash-based folders ~00/~ to
@@ -1034,6 +1126,9 @@ remote repo, all code branches see the same remote DVC data.
 
 * DONE Create ~params.yaml~
 CLOSED: [2023-05-17 Wed 11:52]
+:PROPERTIES:
+:CUSTOM_ID: h-FF6779C7-EFC7-48F3-A552-5CCFDE258EA5
+:END:
 
 Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#create-paramsyaml][section]].
 
@@ -1072,8 +1167,14 @@ git add params.yaml; git commit -m "start build DVC pipeline, create params.yaml
 #+end_src
 
 * DOING Turn notebook into to Python modules
+:PROPERTIES:
+:CUSTOM_ID: h-A7282650-BDA3-4A1B-94DC-01782A5D9AE3
+:END:
 In tutorial repo, this section is called "Creat Python modules".
 ** Turn notebook into to Python modules - Copy solution
+:PROPERTIES:
+:CUSTOM_ID: h-96663827-0B41-4373-A8A0-5413222DF07D
+:END:
 
 Tutorial repo [[https://github.com/RCdeWit/dtc-workshop#create-python-modules][section]].
 
@@ -1107,6 +1208,9 @@ tree -I "*.pyc" -I "__pycache__" ~/src/github.com/irratzo/forks/dtc-workshop-pyc
 : 1 directory, 5 files
 
 ** Turn notebook into to Python modules - Best practice
+:PROPERTIES:
+:CUSTOM_ID: h-9349040B-C0ED-4EFA-B754-C774BB529D82
+:END:
 
 Some notes on how the tutor turned the notebook cells into modules. These can
 serve as *best practices* / *guideline* for manually turning an ML training
@@ -1152,6 +1256,9 @@ notebook and indeed, any kind of computational pipeline, into Python modules.
   metrics are computed, plotted and saved to disk.
 
 ** Turn notebook into to Python modules - Run pipeline
+:PROPERTIES:
+:CUSTOM_ID: h-991888A6-E963-4816-BCDC-0EE7D9868B58
+:END:
 
 With the ~src~ package finished, the same pototype pipeline from the notebook
 can now be run from the command line instead by running all notebook cells (and
@@ -1165,10 +1272,16 @@ python src/evaluate.py --params params.yaml
 #+end_src
 
 ** Intermezzo - Enable DVC shell tab completion
+:PROPERTIES:
+:CUSTOM_ID: h-2ED0E5CE-ACBD-49C5-8582-010A26559740
+:END:
 
 Followed [[https://dvc.org/doc/install/completion?tab=Zsh][instructions for zsh]]. Worked.
 
 ** Turn notebook into to Python modules - Debugging
+:PROPERTIES:
+:CUSTOM_ID: h-17CACCE2-673E-4178-BFF8-195A2AA7E62A
+:END:
 
 In my case, running the modules got stuck.
 
