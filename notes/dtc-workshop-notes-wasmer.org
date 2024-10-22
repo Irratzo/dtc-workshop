@@ -114,6 +114,7 @@ projects".
 :CUSTOM_ID: h-A85C6821-B59A-4F6E-B710-D106E4ED2218
 :END:
 - [[#description][Description]]
+- [[#project-links][Project links]]
 - [[#useful-links][Useful links]]
 - [[#intro-and-motivating-example][Intro and motivating example]]
 - [[#done-fork-the-tutorial-repo][DONE Fork the tutorial repo]]
@@ -141,6 +142,24 @@ projects".
   - [[#intermezzo---enable-dvc-shell-tab-completion][Intermezzo - Enable DVC shell tab completion]]
   - [[#turn-notebook-into-to-python-modules---debugging][Turn notebook into to Python modules - Debugging]]
 
+* Project links
+:PROPERTIES:
+:CUSTOM_ID: h-CFD0F356-E18A-4326-A2B9-AF687C5F0DA6
+:END:
+
+- Entry in phd-project-wasmer notes on starting this tutorial, in work journal
+  2023-04 - 2023-05-12 DVC tutorial.
+  - [[https://iffgit.fz-juelich.de/phd-project-wasmer/notes/public/-/blob/main/work/work-journal/Work_Journal_Notes_2023-04.org#onhold-2023-05-12-dvc-tutorial][web link]]
+  - [[file:~/src/iffgit.fz-juelich.de/phd-project-wasmer/notes/main/public/work/work-journal/Work_Journal_Notes_2023-04.org::#h-9EEE4806-F180-415C-B200-8EFE91C841DC][local file link]]
+- web links, my fork
+  - [[https://github.com/Irratzo/dtc-workshop][dtc-workshop]]
+    - [[https://github.com/Irratzo/dtc-workshop/blob/main/notes/dtc-workshop-notes-wasmer.org][notes]]
+- local file links, my fork, branches
+  - [[file:~/src/github.com/irratzo/forks/dtc-workshop-main][main]]
+    - [[file:~/src/github.com/irratzo/forks/dtc-workshop-main/notes/dtc-workshop-notes-wasmer.org][notes]]
+  - [[file:~/src/github.com/irratzo/forks/dtc-workshop-pycharm][pycharm]]
+  - [[file:~/src/github.com/irratzo/forks/dtc-workshop-vscode-dvc][vscode-dvc]]
+  - [[file:~/src/github.com/irratzo/forks/dtc-workshop-solution][solution]]
 * Useful links
 :PROPERTIES:
 :CUSTOM_ID: h-D60E0825-57F2-48F5-8BA0-A855AE37A1B9
